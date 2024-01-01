@@ -1,4 +1,4 @@
-package com.example.chessproject;
+package com.chessproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
