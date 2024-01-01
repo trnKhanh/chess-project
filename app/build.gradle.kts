@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.chessproject"
-    compileSdk = 33
+    namespace = "com.chessproject"
+    compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.chessproject"
+        applicationId = "com.chessproject"
         minSdk = 28
         targetSdk = 33
         versionCode = 1
