@@ -29,27 +29,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        detector = new ChessPositionDetector(new ChessPositionDetector.OnResultListener() {
-            @Override
-            public void onResult(String fen) {
-                Log.d(TAG, fen);
-            }
-        });
-        Button btn = (Button) findViewById(R.id.button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (handler != null) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.chessboard);
-                            detector.detectPosition(getBytesFromBitmap(bitmap));
-                        }
-                    });
-                }
-            }
-        });
+//        detector = new ChessPositionDetector(new ChessPositionDetector.OnResultListener() {
+//            @Override
+//            public void onResult(String fen) {
+//                Log.d(TAG, fen);
+//            }
+//        });
+//        Button btn = (Button) findViewById(R.id.button);
+//        btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (handler != null) {
+//                    handler.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.chessboard);
+//                            detector.detectPosition(getBytesFromBitmap(bitmap));
+//                        }
+//                    });
+//                }
+//            }
+//        });
 
     }
 
