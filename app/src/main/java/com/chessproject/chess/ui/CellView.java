@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -18,15 +19,19 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
     int mCellState = 0;
     Paint mDotPaint = new Paint();
     Paint mRingPaint = new Paint();
+
+    Paint mHighlightedPaint = new Paint();
     BoardController mBoardController;
     public CellView(Context context, int position, BoardController boardController) {
         super(context);
-        mDotPaint.setColor(Color.GRAY);
+        mDotPaint.setARGB(150, 150, 150, 150);
         mDotPaint.setStyle(Paint.Style.FILL);
 
-        mRingPaint.setColor(Color.GRAY);
+        mRingPaint.setARGB(150, 150, 150, 150);
         mRingPaint.setStyle(Paint.Style.STROKE);
         mRingPaint.setStrokeWidth(4);
+
+        mHighlightedPaint.setARGB(100, 255, 255, 0);
 
         mContext = context;
         mPosition = position;
@@ -64,7 +69,12 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
             canvas.drawCircle((float)getWidth() / 2, (float)getHeight() / 2, (float)getWidth() / 10f, mDotPaint);
         } else if ((mCellState & (LEGAL_MOVE_PIECE)) != 0){
             // Draw a ring if a piece
-            canvas.drawCircle((float)getWidth() / 2, (float)getHeight() / 2, (float)getWidth() * 4.5f / 10f, mRingPaint);
+            canvas.drawCircle((float)getWidth() / 2, (float)getHeight() / 2, (float)getWidth() / 2f - 4, mRingPaint);
+        }
+
+        if ((mCellState & (HIGHLIGHTED)) != 0) {
+            canvas.drawRect(new Rect(0, 0, getWidth(), getHeight()), mHighlightedPaint);
+//            canvas.drawARGB(75, 255, 255, 0);
         }
     }
 
@@ -75,7 +85,7 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
             case MotionEvent.ACTION_POINTER_UP:
                 Log.d(TAG, "TOUCHED");
                 if (event.getX() >= 0 && event.getX() <= getWidth() && event.getY() >= 0 && event.getY() <= getHeight())
-                    mBoardController.finishMove(mPosition);
+                    mBoardController.placeSelectedPiece(mPosition);
                 break;
         }
 
@@ -84,6 +94,28 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
 
     public void setCellState(int cellState) {
         mCellState = cellState;
+        invalidate();
+    }
+
+    public void toggleHighlighted() {
+        mCellState ^= HIGHLIGHTED;
+        invalidate();
+    }
+    public void toggleLegalMove(boolean isCapture) {
+        clearLegalMove();
+        if (isCapture) {
+            mCellState ^= LEGAL_MOVE_PIECE;
+        } else {
+            mCellState ^= LEGAL_MOVE;
+        }
+        invalidate();
+    }
+    public void clearLegalMove() {
+        mCellState &= ~(LEGAL_MOVE | LEGAL_MOVE_PIECE);
+        invalidate();
+    }
+    public void clearState() {
+        mCellState = 0;
         invalidate();
     }
 }

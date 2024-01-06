@@ -11,8 +11,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Button;
 
+import com.chessproject.chess.logic.Board;
+import com.chessproject.chess.ui.BoardView;
 import com.chessproject.detection.ChessPositionDetector;
 
 import java.io.ByteArrayOutputStream;
@@ -29,6 +32,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        BoardView boardView = (BoardView) findViewById(R.id.chessboard);
+
+        Button btn = (Button) findViewById(R.id.button);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boardView.toggleSetupBoard();
+            }
+        });
 //        detector = new ChessPositionDetector(new ChessPositionDetector.OnResultListener() {
 //            @Override
 //            public void onResult(String fen) {

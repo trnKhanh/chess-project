@@ -4,14 +4,17 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.chessproject.chess.logic.Board;
+import com.chessproject.chess.logic.Knight;
 import com.chessproject.chess.logic.Piece;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -25,8 +28,16 @@ public class BoardView extends FrameLayout implements BoardController {
     LayoutParams mPieceParams;
     CellView[] mCellViews = new CellView[64];
     HashMap<Integer, PieceView> mPieceViewMap = new HashMap<>();
+    ArrayList<PieceView> mExtraPieceViews = new ArrayList<>();
+    boolean mIsSetupBoard = true;
+    public void toggleSetupBoard() {
+        mIsSetupBoard = !mIsSetupBoard;
+        mBoard.clearHistory();
+        requestLayout();
+    }
 
     private void initBoard(String fen) {
+        setClipChildren(false);
         setWillNotDraw(false);
         mBoard = new Board(fen);
         mPieceParams = new LayoutParams(DEFAULT_WIDTH / 8, DEFAULT_HEIGHT / 8);
@@ -43,6 +54,16 @@ public class BoardView extends FrameLayout implements BoardController {
                 mCellViews[i * 8 + j] = cellView;
             }
         }
+
+        Piece whiteKnight = new Knight(true, 9 * 8, mBoard);
+        PieceView whiteKnightView = new PieceView(mContext, whiteKnight, this);
+        mExtraPieceViews.add(whiteKnightView);
+        this.addView(whiteKnightView);
+
+        Piece blackKnight = new Knight(false, 10 * 8, mBoard);
+        PieceView blackKnightView = new PieceView(mContext, blackKnight, this);
+        mExtraPieceViews.add(blackKnightView);
+        this.addView(blackKnightView);
     }
     public BoardView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -64,28 +85,35 @@ public class BoardView extends FrameLayout implements BoardController {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
+        int defaultWidth = DEFAULT_WIDTH;
+        int defaultHeight = DEFAULT_HEIGHT;
+
+        if (mIsSetupBoard) {
+            defaultHeight += DEFAULT_WIDTH * 3 / 8;
+        }
+
         int width;
         int height;
 
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize;
         } else if (widthMode == MeasureSpec.AT_MOST) {
-            width = Math.min(DEFAULT_WIDTH, widthSize);
+            width = Math.min(defaultWidth, widthSize);
         } else {
-            width = DEFAULT_WIDTH;
+            width = defaultWidth;
         }
 
         if (heightMode == MeasureSpec.EXACTLY) {
             height = heightSize;
         } else if (heightMode == MeasureSpec.AT_MOST) {
-            height = Math.min(DEFAULT_HEIGHT, heightSize);
+            height = Math.min(defaultHeight, heightSize);
         } else {
-            height = DEFAULT_HEIGHT;
+            height = defaultHeight;
         }
 
         setMeasuredDimension(width, height);
         int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width / 8, MeasureSpec.EXACTLY);
-        int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height / 8, MeasureSpec.EXACTLY);
+        int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(width / 8, MeasureSpec.EXACTLY);
         for (int i = 0; i < getChildCount(); ++i) {
             getChildAt(i).measure(childWidthMeasureSpec, childHeightMeasureSpec);
         }
@@ -95,17 +123,31 @@ public class BoardView extends FrameLayout implements BoardController {
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         for (int i = 0; i < 64; ++i) {
-            mCellViews[i].setCellState(0);
+            mCellViews[i].clearState();
+        }
+        if (mIsSetupBoard) {
+            for (PieceView pieceView: mExtraPieceViews) {
+                pieceView.setVisibility(VISIBLE);
+            }
+            return;
+        } else {
+            for (PieceView pieceView: mExtraPieceViews) {
+                pieceView.setVisibility(GONE);
+            }
+        }
+        // Highlighted last move
+        Pair<Integer, Integer> lastMove = mBoard.getLastMove();
+        if (lastMove != null) {
+            mCellViews[lastMove.first].toggleHighlighted();
+            mCellViews[lastMove.second].toggleHighlighted();
         }
         if (mSelectedPieceView != null) {
             ArrayList<Integer> legalMoves = mSelectedPieceView.getPiece().getLegalMoves();
-            Log.d(TAG, String.valueOf(legalMoves.size()));
             for (int position: legalMoves) {
-                Log.d(TAG, String.valueOf(mBoard.getPiece(position)));
                 if (mBoard.getPiece(position) == null) {
-                    mCellViews[position].setCellState(CellView.LEGAL_MOVE);
+                    mCellViews[position].toggleLegalMove(false);
                 } else {
-                    mCellViews[position].setCellState(CellView.LEGAL_MOVE_PIECE);
+                    mCellViews[position].toggleLegalMove(true);
                 }
             }
         }
@@ -116,17 +158,31 @@ public class BoardView extends FrameLayout implements BoardController {
         if (mSelectedPieceView == null) {
             mSelectedPieceView = pieceView;
             mSelectedPieceView.setZ(2);
+        } else if (mIsSetupBoard && pieceView.getPiece().getPosition() >= 64) {
+            // if it is a setup board and selected piece is the "extra" piece, then just select it.
+            mSelectedPieceView = pieceView;
+            mSelectedPieceView.setZ(2);
         }
         invalidate();
         return mSelectedPieceView == pieceView;
     }
 
     @Override
-    public void finishMove(int position) {
+    public void placeSelectedPiece(int position) {
         if (mSelectedPieceView != null) {
-            // Try moving piece to new position
             int oldPosition = mSelectedPieceView.getPiece().getPosition();
-            boolean success = mSelectedPieceView.getPiece().moveTo(position);
+
+            // If it is a setup board, then renew "extra" piece whenever it is placed.
+            if (mIsSetupBoard && oldPosition >= 64) {
+                mExtraPieceViews.remove(mSelectedPieceView);
+                Piece piece = mSelectedPieceView.getPiece().copy();
+                PieceView pieceView = new PieceView(mContext, piece, this);
+                this.addView(pieceView);
+                mExtraPieceViews.add(pieceView);
+            }
+            // Try moving piece to new position
+            boolean success = mSelectedPieceView.getPiece().moveTo(position, !mIsSetupBoard);
+
             mSelectedPieceView.animateMove();
             // If user clicks another cell
             if (oldPosition != position) {
@@ -141,7 +197,13 @@ public class BoardView extends FrameLayout implements BoardController {
                     // Update piece's view position
                     mPieceViewMap.remove(oldPosition);
                     mPieceViewMap.put(position, mSelectedPieceView);
+
+                } else if (mIsSetupBoard) {
+                    // If it is a setup board then remove a piece when it go out side the board/failed move.
+                    mPieceViewMap.remove(oldPosition);
+                    this.removeView(mSelectedPieceView);
                 }
+
                 mSelectedPieceView = null;
             }
         }

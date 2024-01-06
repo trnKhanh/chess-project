@@ -1,6 +1,7 @@
 package com.chessproject.chess.ui;
 
 public interface BoardController {
+    PieceView mSelectedPieceView = null;
     boolean setSelectedPiece(PieceView pieceview);
-    void finishMove(int position);
+    void placeSelectedPiece(int position);
 }

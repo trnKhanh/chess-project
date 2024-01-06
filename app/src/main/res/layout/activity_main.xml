@@ -4,20 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-<!--    <Button-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Hello World!"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        android:id="@+id/button"/>-->
+    tools:context=".MainActivity"
+    android:clipChildren="false"
+    android:orientation="vertical">
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Toggle setup board"
+        android:id="@+id/button"
+        android:layout_gravity="center"/>
     <com.chessproject.chess.ui.BoardView
-        android:layout_width="800px"
-        android:layout_height="800px"
-        android:layout_margin="50px"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#ffffff00"
+        android:layout_margin="50px"
+        android:id="@+id/chessboard"
+        android:layout_gravity="center"/>
 
 </LinearLayout>

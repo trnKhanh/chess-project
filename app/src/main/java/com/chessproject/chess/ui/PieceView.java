@@ -4,6 +4,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
@@ -73,13 +74,15 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
                     return false;
             case MotionEvent.ACTION_MOVE:
                 // Set position so that the center is under the touch position
+                setScaleX(1.5f);
+                setScaleY(1.5f);
                 centerX = getX() + event.getX();
                 centerY = getY() + event.getY();
-                // Adjust position
-                centerX = centerX < 0 ? 0 : centerX;
-                centerX = centerX > getWidth() * 8 ? getWidth() * 8 : centerX;
-                centerY = centerY < 0 ? 0 : centerY;
-                centerY = centerY > getHeight() * 8 ? getHeight() * 8 : centerY;
+//                // Adjust position
+//                centerX = centerX < 0 ? 0 : centerX;
+//                centerX = centerX > getWidth() * 8 ? getWidth() * 8 : centerX;
+//                centerY = centerY < 0 ? 0 : centerY;
+//                centerY = centerY > getHeight() * 8 ? getHeight() * 8 : centerY;
 
                 setX(centerX - (float)getWidth() / 2);
                 setY(centerY - (float)getHeight() / 2);
@@ -87,13 +90,21 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
+                setScaleX(1f);
+                setScaleY(1f);
                 // Calculate the new position
                 float x = getX() + (float) getWidth() / 2;
                 float y = getY() + (float) getHeight() / 2;
-                int colId = (int) x / getWidth();
-                int rowId = (int) y / getHeight();
+                Log.d(TAG, "x " + String.valueOf(x));
+                Log.d(TAG, "y " + String.valueOf(y));
+                int colId = (int)Math.floor((double) x / (double)getWidth());
+                int rowId = (int)Math.floor((double) y / (double)getHeight());
+                if (colId >= 8 || colId < 0 || rowId >= 8 || rowId < 0) {
+                    rowId = -1;
+                    colId = -1;
+                }
                 // Clear board when choose other cells
-                mBoardController.finishMove(rowId * 8 + colId);
+                mBoardController.placeSelectedPiece(rowId * 8 + colId);
 
                 break;
         };

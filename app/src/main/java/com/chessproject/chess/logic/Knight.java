@@ -10,8 +10,14 @@ import java.util.ArrayList;
 public class Knight extends Piece{
     final static String TAG = "Knight";
 
-    Knight(boolean white, int position, Board board) {
+    public Knight(boolean white, int position, Board board) {
         super(white, position, board);
+    }
+
+    @Override
+    public Piece copy() {
+        Piece clone = new Knight(mWhite, mPosition, mBoard);
+        return clone;
     }
 
     @Override
