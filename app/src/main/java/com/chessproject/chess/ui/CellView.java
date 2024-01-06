@@ -80,6 +80,7 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        Log.d(TAG, "TOUCHED");
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:

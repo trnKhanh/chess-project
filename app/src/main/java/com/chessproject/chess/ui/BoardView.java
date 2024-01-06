@@ -122,6 +122,7 @@ public class BoardView extends FrameLayout implements BoardController {
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
+        mBoard.printBoard();
         for (int i = 0; i < 64; ++i) {
             mCellViews[i].clearState();
         }
@@ -157,12 +158,22 @@ public class BoardView extends FrameLayout implements BoardController {
     public boolean setSelectedPiece(PieceView pieceView) {
         if (mSelectedPieceView == null) {
             mSelectedPieceView = pieceView;
-            mSelectedPieceView.setZ(2);
-        } else if (mIsSetupBoard && pieceView.getPiece().getPosition() >= 64) {
-            // if it is a setup board and selected piece is the "extra" piece, then just select it.
-            mSelectedPieceView = pieceView;
-            mSelectedPieceView.setZ(2);
         }
+
+        if (mIsSetupBoard && pieceView.getPiece().getPosition() >= 64) {
+            // if it is a setup board and selected piece is the "extra" piece, then just select it.
+            if (mSelectedPieceView != null) {
+                mSelectedPieceView = pieceView;
+            }
+            // If it is a "extra" piece, then create a new copy
+            mExtraPieceViews.remove(mSelectedPieceView);
+            Piece piece = mSelectedPieceView.getPiece().copy();
+            PieceView newPieceView = new PieceView(mContext, piece, this);
+            Log.d(TAG, "CREATED");
+            this.addView(newPieceView);
+            mExtraPieceViews.add(newPieceView);
+        }
+        mSelectedPieceView.setZ(2);
         invalidate();
         return mSelectedPieceView == pieceView;
     }
@@ -171,19 +182,11 @@ public class BoardView extends FrameLayout implements BoardController {
     public void placeSelectedPiece(int position) {
         if (mSelectedPieceView != null) {
             int oldPosition = mSelectedPieceView.getPiece().getPosition();
-
-            // If it is a setup board, then renew "extra" piece whenever it is placed.
-            if (mIsSetupBoard && oldPosition >= 64) {
-                mExtraPieceViews.remove(mSelectedPieceView);
-                Piece piece = mSelectedPieceView.getPiece().copy();
-                PieceView pieceView = new PieceView(mContext, piece, this);
-                this.addView(pieceView);
-                mExtraPieceViews.add(pieceView);
-            }
             // Try moving piece to new position
             boolean success = mSelectedPieceView.getPiece().moveTo(position, !mIsSetupBoard);
 
             mSelectedPieceView.animateMove();
+            mSelectedPieceView.setZ(1);
             // If user clicks another cell
             if (oldPosition != position) {
                 // If the move is successful/legal

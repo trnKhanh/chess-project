@@ -61,7 +61,6 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
             }
         });
         animator.start();
-        setZ(1);
     }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -78,11 +77,6 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
                 setScaleY(1.5f);
                 centerX = getX() + event.getX();
                 centerY = getY() + event.getY();
-//                // Adjust position
-//                centerX = centerX < 0 ? 0 : centerX;
-//                centerX = centerX > getWidth() * 8 ? getWidth() * 8 : centerX;
-//                centerY = centerY < 0 ? 0 : centerY;
-//                centerY = centerY > getHeight() * 8 ? getHeight() * 8 : centerY;
 
                 setX(centerX - (float)getWidth() / 2);
                 setY(centerY - (float)getHeight() / 2);

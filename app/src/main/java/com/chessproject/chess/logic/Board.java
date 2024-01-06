@@ -1,10 +1,12 @@
 package com.chessproject.chess.logic;
 
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
 
 public class Board {
+    final static String TAG = "Board";
     ArrayList<Piece> mPieces;
     ArrayList<Pair<Integer, Integer>> mMovesHistory;
     Piece[] mBoard = new Piece[64];
@@ -24,18 +26,34 @@ public class Board {
     public Piece getPiece(int position) {
         return mBoard[position];
     }
-    public void movePiece(int position, int newPosition) {
+    public void movePiece(Piece piece, int newPosition) {
+        int position = piece.getPosition();
+        if (position >= 0 && position < 64 && piece != mBoard[position])
+            return;
+        if (position >= 0 && position < 64) {
+            mBoard[position] = null;
+        }
         if (newPosition >= 0 && newPosition < 64) {
             if (mBoard[newPosition] != null) {
                 mPieces.remove(mBoard[newPosition]);
             }
+            if (!mPieces.contains(piece)) {
+                mPieces.add(piece);
+            }
+            mBoard[newPosition] = piece;
             if (position >= 0 && position < 64) {
-                mBoard[newPosition] = mBoard[position];
                 mMovesHistory.add(new Pair<>(position, newPosition));
             }
         }
-        if (position >= 0 && position < 64) {
-            mBoard[position] = null;
+    }
+    public void printBoard() {
+        Log.d(TAG, "len " + String.valueOf(mPieces.size()));
+        for (int i = 0; i < 8; ++i) {
+            for (int j= 0; j < 8; ++j) {
+                if (mBoard[i * 8 + j] != null) {
+                    Log.d(TAG, String.valueOf(i) + " " + String.valueOf(j));
+                }
+            }
         }
     }
 

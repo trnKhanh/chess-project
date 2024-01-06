@@ -21,7 +21,7 @@ public abstract class Piece implements Cloneable{
     public boolean moveTo(int newPosition, boolean checkLegal) {
         ArrayList<Integer> legalMoves = getLegalMoves();
         if (!checkLegal || legalMoves.contains(newPosition)) {
-            mBoard.movePiece(mPosition, newPosition);
+            mBoard.movePiece(this, newPosition);
             mPosition = newPosition;
             return newPosition >= 0 && newPosition < 64;
         }
