@@ -1,7 +1,11 @@
 package com.example.chessvision;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
+import com.example.chessvision.ui.camera.CameraFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,7 +16,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.chessvision.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     private ActivityMainBinding binding;
 
@@ -30,8 +34,32 @@ public class MainActivity extends AppCompatActivity {
                 R.id.navigation_home, R.id.navigation_camera, R.id.navigation_notifications)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+
+
+        if (getIntent().hasExtra("FRAGMENT_TO_SHOW")) {
+            Log.d("FRAGMENT NAME", getIntent().getStringExtra("FRAGMENT_TO_SHOW"));
+            String fragmentToShow = getIntent().getStringExtra("FRAGMENT_TO_SHOW");
+            switchFragment(navController, fragmentToShow);
+        }
+
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
     }
-
+    private void switchFragment(NavController navController, String fragmentTag) {
+        int destinationId = 0;
+        switch (fragmentTag) {
+            case "CameraFragment":
+                destinationId = R.id.navigation_camera;
+                break;
+            case "HomeFragment":
+                destinationId = R.id.navigation_home;
+                break;
+            case "NotificationFragment":
+                destinationId = R.id.navigation_notifications;
+                break;
+        }
+        if (destinationId != 0) {
+            navController.navigate(destinationId);
+        }
+    }
 }

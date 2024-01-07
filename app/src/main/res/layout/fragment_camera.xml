@@ -5,18 +5,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.camera.CameraFragment">
-
+    <SurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
     <ImageView
-        android:id="@+id/imageCapture"
-        android:layout_width="400dp"
-        android:layout_height="400dp"
-        android:scaleType="centerCrop"
-        android:visibility="visible" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageCapture"/>
     <Button
-        android:id="@+id/generateButton"
+        android:id="@+id/btnChooseImage"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_gravity="center"
-        android:translationY="100dp"
-        android:text="Generate" />
+        android:layout_height="wrap_content"
+        android:text="Gallery"
+        android:layout_gravity="right"
+        android:layout_centerHorizontal="true"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationY="-100dp"
+        android:orientation="vertical"
+        android:layout_gravity="bottom|center">
+        <Button
+            android:id="@+id/btnCapture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Capture" />
+        <Button
+            android:layout_gravity="center"
+            android:id="@+id/btnGenerate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate"
+            android:visibility="invisible"/>
+    </LinearLayout>
+
 </FrameLayout>
+
