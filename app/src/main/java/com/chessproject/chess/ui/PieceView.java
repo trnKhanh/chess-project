@@ -18,13 +18,16 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
     public Piece getPiece() {
         return mPiece;
     }
-
+    public void setPiece(Piece piece) {
+        mPiece = piece;
+        setImageResource(mPiece.getImageResource());
+    }
     public PieceView(Context context, Piece piece, BoardController boardController) {
         super(context);
         mContext = context;
         mPiece = piece;
         mBoardController = boardController;
-
+        // Set Z so that piece is above cell
         setZ(1);
         // Set image resource to correct piece
         setImageResource(mPiece.getImageResource());
@@ -36,20 +39,21 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
         // Set position in board
         int colId = mPiece.getPosition() % 8;
         int rowId = mPiece.getPosition() / 8;
-        Log.d(TAG, String.valueOf(mPiece.getPosition()));
         setX(colId * getWidth());
         setY(rowId * getHeight());
     }
 
     public void animateMove() {
+        // Calculate position of destination
         int colId = mPiece.getPosition() % 8;
         int rowId = mPiece.getPosition() / 8;
-        float oldX = getX();
-        float oldY = getY();
-
         float newX = colId * getWidth();
         float newY = rowId * getHeight();
 
+        // Get current position
+        float oldX = getX();
+        float oldY = getY();
+        // Set up animation moving piece from current position to destination
         ValueAnimator animator = ValueAnimator.ofFloat(1f, 0f);
         animator.setDuration(100);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -64,45 +68,46 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
     }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float centerX, centerY;
+
+        // Calculate the new position
+        float centerX = getX() + event.getX();
+        float centerY = getY() + event.getY();
+
+        int colId = (int)Math.floor((double) centerX / (double)getWidth());
+        int rowId = (int)Math.floor((double) centerY / (double)getHeight());
+        // If the new position is outside of the board then set row id and col id to outside/negative.
+        if (colId >= 8 || colId < 0 || rowId >= 8 || rowId < 0) {
+            rowId = -1;
+            colId = -1;
+        }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                // Set selected piece to this
-                if (!mBoardController.setSelectedPiece(this))
-                    return false;
+                // Try set selected piece to this if there is no current selected piece.
+                return mBoardController.setSelectedPiece(this, true);
             case MotionEvent.ACTION_MOVE:
-                // Set position so that the center is under the touch position
+                // Scale up the piece
                 setScaleX(1.5f);
                 setScaleY(1.5f);
-                centerX = getX() + event.getX();
-                centerY = getY() + event.getY();
 
                 setX(centerX - (float)getWidth() / 2);
                 setY(centerY - (float)getHeight() / 2);
 
-                break;
+                mBoardController.setSelectedCell(rowId * 8 + colId);
+
+                return true;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
+                // Scale the piece back to normal
                 setScaleX(1f);
                 setScaleY(1f);
-                // Calculate the new position
-                float x = getX() + (float) getWidth() / 2;
-                float y = getY() + (float) getHeight() / 2;
-                Log.d(TAG, "x " + String.valueOf(x));
-                Log.d(TAG, "y " + String.valueOf(y));
-                int colId = (int)Math.floor((double) x / (double)getWidth());
-                int rowId = (int)Math.floor((double) y / (double)getHeight());
-                if (colId >= 8 || colId < 0 || rowId >= 8 || rowId < 0) {
-                    rowId = -1;
-                    colId = -1;
-                }
-                // Clear board when choose other cells
+
+                // Try placing the selected piece.
                 mBoardController.placeSelectedPiece(rowId * 8 + colId);
 
-                break;
+                return true;
         };
 
-        return true;
+        return false;
     }
 }

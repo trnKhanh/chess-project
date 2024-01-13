@@ -6,6 +6,7 @@ public abstract class Piece implements Cloneable{
     boolean mWhite;
     int mPosition;
     Board mBoard;
+    boolean mIsPromoting = false;
     public Piece(boolean white, int position, Board board) {
         mWhite = white;
         mPosition = position;
@@ -17,15 +18,36 @@ public abstract class Piece implements Cloneable{
     public int getPosition() {
         return mPosition;
     }
-
-    public boolean moveTo(int newPosition, boolean checkLegal) {
+    public boolean moveTo(int newPosition) {
         ArrayList<Integer> legalMoves = getLegalMoves();
-        if (!checkLegal || legalMoves.contains(newPosition)) {
-            mBoard.movePiece(this, newPosition);
-            mPosition = newPosition;
-            return newPosition >= 0 && newPosition < 64;
+        // Check if the move is legal before moving.
+        if (legalMoves.contains(newPosition)) {
+            // Try moving piece in board.
+            if (mBoard.movePiece(mPosition, newPosition)) {
+                // TODO: update mIsPromoting here, the following only for testing
+                if (newPosition < 8) {
+                    mBoard.setNewPromote();
+                    mIsPromoting = true;
+                }
+                // If the move is successful then update position.
+                mPosition = newPosition;
+                return true;
+            }
         }
-
         return false;
+    }
+    public Piece promote(String pieceType) {
+        mIsPromoting = false;
+        mBoard.finishPromote();
+        return mBoard.promote(mPosition, pieceType);
+    }
+    public void setPosition(int position) {
+        mPosition = position;
+    }
+    public boolean isPromoting() {
+        return mIsPromoting;
+    }
+    public boolean isWhite() {
+        return mWhite;
     }
 }

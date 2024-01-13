@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boardView.toggleSetupBoard();
+                boardView.rollbackLastMove();
             }
         });
 //        detector = new ChessPositionDetector(new ChessPositionDetector.OnResultListener() {

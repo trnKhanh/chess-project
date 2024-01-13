@@ -22,7 +22,6 @@ public class Knight extends Piece{
 
     @Override
     public int getImageResource() {
-        Log.d(TAG, String.valueOf(mWhite));
         return mWhite ? R.drawable.white_knight : R.drawable.black_knight;
     }
 

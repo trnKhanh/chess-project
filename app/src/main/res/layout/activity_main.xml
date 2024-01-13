@@ -6,16 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:clipChildren="false"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:focusable="true">
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Toggle setup board"
+        android:text="Undo"
         android:id="@+id/button"
         android:layout_gravity="center"/>
     <com.chessproject.chess.ui.BoardView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="800px"
+        android:layout_height="800px"
         android:background="#ffffff00"
         android:layout_margin="50px"
         android:id="@+id/chessboard"
