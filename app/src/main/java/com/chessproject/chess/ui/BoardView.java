@@ -2,8 +2,13 @@ package com.chessproject.chess.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -35,6 +40,8 @@ public class BoardView extends FrameLayout implements BoardController {
     CellView mSelectedCellView = null;
     ImageView mLastMoveEvalView = null;
     PromotionView mWhitePromotionSelections, mBlackPromotionSelections;
+    ArrayList<Pair<Integer, Integer>> mArrows = new ArrayList<>();
+    Paint mArrowPaint = new Paint();
     public void toggleSetupBoard() {
         mIsSetupBoard = !mIsSetupBoard;
         mBoard.clearHistory();
@@ -46,6 +53,14 @@ public class BoardView extends FrameLayout implements BoardController {
         setClipChildren(false);
         // Set will not draw to false so that invalidate will trigger onDraw.
         setWillNotDraw(false);
+        // Set arrow paint
+        mArrowPaint.setARGB(200, 0, 255, 0);
+        mArrowPaint.setStrokeWidth(2);
+        // TODO: Dummy arrows only, remove after testing
+        mArrows.add(new Pair<>(20, 2));
+        mArrows.add(new Pair<>(8, 23));
+        mArrows.add(new Pair<>(7, 24));
+        mArrows.add(new Pair<>(56, 47));
         // Create board based on fen.
         mBoard = new Board(fen);
         // Create PieceView for each pieces in board.
@@ -166,9 +181,55 @@ public class BoardView extends FrameLayout implements BoardController {
         return true;
     }
     @Override
+    public void onDrawForeground(@NonNull Canvas canvas) {
+        super.onDrawForeground(canvas);
+        // arrow head width is 3/4 of cell width
+        float arrowHeadWidth = (getWidth() / 8f) * 3f / 4f;
+        // arrow head length is 3/4 of cell width
+        float arrowHeadLength = (getWidth() / 8f) * 3f / 4f;
+        // arrow stem width is 1/2 of arrow head width
+        float arrowStemWidth = arrowHeadWidth / 2;
+        // Draw all arrows
+        for (Pair<Integer, Integer> arrow: mArrows) {
+            int startPosition = arrow.first;
+            int endPosition = arrow.second;
+            // Root of arrow is the center of the start cell
+            float startX = startPosition % 8 * (getWidth() / 8f) + getWidth() / 16f;
+            float startY = startPosition / 8 * (getHeight() / 8f) + getHeight() / 16f;
+            // Head of arrow is the center of the end cell
+            float endX = endPosition % 8 * (getWidth() / 8f) + getWidth() / 16f;
+            float endY = endPosition / 8 * (getHeight() / 8f) + getHeight() / 16f;
+            // Calculate arrow length
+            float arrowLength = (float) Math.sqrt((endX - startX) * (endX - startX) + (endY - startY) * (endY - startY));
+            // Calculate sin and cos for rotation
+            float sin = (endX - startX) / arrowLength;
+            float cos = -(endY - startY) / arrowLength;
+
+            Path path = new Path();
+
+            path.moveTo(startX, startY);
+            // Draw vertical arrow rooted at start position
+            path.lineTo(startX - arrowStemWidth / 2, startY);
+            path.lineTo(startX - arrowStemWidth / 2, startY - arrowLength + arrowHeadLength);
+            path.lineTo(startX - arrowHeadWidth / 2, startY - arrowLength + arrowHeadLength);
+            path.lineTo(startX, startY - arrowLength);
+            path.lineTo(startX + arrowHeadWidth / 2, startY - arrowLength + arrowHeadLength);
+            path.lineTo(startX + arrowStemWidth / 2, startY - arrowLength + arrowHeadLength);
+            path.lineTo(startX + arrowStemWidth / 2, startY);
+            path.lineTo(startX, startY);
+            // Rotate arrow to correct destination
+            Matrix matrix = new Matrix();
+            matrix.setSinCos(sin, cos, startX, startY);
+//            matrix.setRotate(angle, startX, startY);
+            path.transform(matrix);
+
+            canvas.drawPath(path, mArrowPaint);
+        }
+    }
+
+    @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
-
         // Clear state of all cells.
         for (int i = 0; i < 64; ++i) {
             mCellViews[i].clearState();
@@ -206,6 +267,11 @@ public class BoardView extends FrameLayout implements BoardController {
             for (int position: legalMoves) {
                 mCellViews[position].toggleLegalMove(mBoard.getPiece(position) != null);
             }
+        }
+        // Animate move of all PieceViews
+        for (PieceView pieceView: mPieceViewMap.values()) {
+            if (pieceView != mSelectedPieceView)
+                pieceView.animateMove();
         }
     }
     // Below is the implementation of BoardController.
@@ -254,7 +320,7 @@ public class BoardView extends FrameLayout implements BoardController {
             // Try moving piece to new position.
             boolean success = mSelectedPieceView.getPiece().moveTo(position);
             // Animate move the new position.
-            mSelectedPieceView.animateMove();
+//            mSelectedPieceView.animateMove();
             // Set Z back to 1 so that it is on the same level of other pieces.
             mSelectedPieceView.setZ(1);
             // If the new position is different from old position, i.e user clicks the other other cell.
@@ -371,7 +437,7 @@ public class BoardView extends FrameLayout implements BoardController {
                 // Then trigger moving animation.
                 if (mPieceViewMap.containsKey(move.getNewPosition())) {
                     mPieceViewMap.put(move.getOldPosition(), mPieceViewMap.get(move.getNewPosition()));
-                    mPieceViewMap.get(move.getOldPosition()).animateMove();
+//                    mPieceViewMap.get(move.getOldPosition()).animateMove();
                     mPieceViewMap.remove(move.getNewPosition());
                 }
             }

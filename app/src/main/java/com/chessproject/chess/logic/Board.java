@@ -149,6 +149,7 @@ public class Board {
             return null;
         }
         getLastMove().setPromotionFrom(mPieces[position]);
+        // TODO: set promotion to correct pieces
         switch (pieceType) {
             case "q":
                 mPieces[position] = new Knight(!oldPiece.isWhite(), position, this);
@@ -176,8 +177,6 @@ public class Board {
         if (mPieces[move.getNewPosition()] == null) {
             return null;
         }
-        Log.d(TAG, "Old position: " + String.valueOf(move.getOldPosition()));
-        Log.d(TAG, "New position: " + String.valueOf(move.getNewPosition()));
         // Update pieces
         // If there is promotion then reverse it
         if (move.getPromotionFrom() != null)
