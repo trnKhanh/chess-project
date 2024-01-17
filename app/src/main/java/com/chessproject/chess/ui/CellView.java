@@ -33,10 +33,10 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
         mBoardController = boardController;
 
         // Setup paint for cell
-        mDotPaint.setARGB(150, 150, 150, 150);
+        mDotPaint.setARGB(150, 175, 175, 175);
         mDotPaint.setStyle(Paint.Style.FILL);
 
-        mRingPaint.setARGB(150, 150, 150, 150);
+        mRingPaint.setARGB(150, 175, 175, 175);
         mRingPaint.setStyle(Paint.Style.STROKE);
         mRingPaint.setStrokeWidth(4);
 
@@ -49,9 +49,9 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
         int colId = mPosition % 8;
         int rowId = mPosition / 8;
         if ((colId + rowId) % 2 == 0) {
-            setBackgroundColor(Color.WHITE);
+            setBackgroundColor(0xffeeeed2);
         } else {
-            setBackgroundColor(Color.BLACK);
+            setBackgroundColor(0xff769656);
         }
     }
     @Override

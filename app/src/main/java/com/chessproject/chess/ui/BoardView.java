@@ -449,7 +449,7 @@ public class BoardView extends FrameLayout implements BoardController {
         int promotionBoxX = (int)mPromotedPieceView.getPiece().getPosition() % 8 * (getWidth() / 8);
         int promotionBoxY = (int)mPromotedPieceView.getPiece().getPosition() / 8 * (getHeight() / 8);
         promotionBoxY = Math.min(promotionBoxY, getHeight() / 2);
-        if (mBoard.isWhiteTurn()) {
+        if (mPromotedPieceView.getPiece().isWhite()) {
             mWhitePromotionSelections.setVisibility(VISIBLE);
             mWhitePromotionSelections.setX(promotionBoxX);
             mWhitePromotionSelections.setY(promotionBoxY);

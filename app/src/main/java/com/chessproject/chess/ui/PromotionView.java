@@ -16,7 +16,6 @@ public class PromotionView extends LinearLayout {
 
     public PromotionView(Context context, boolean white, BoardController boardController) {
         super(context);
-        setBackgroundColor(Color.YELLOW);
 
         mContext = context;
         mBoardController = boardController;
@@ -39,10 +38,20 @@ public class PromotionView extends LinearLayout {
         // Set image resource
         // TODO: Reorder when add all pieces assets: QUEEN -> ROOK -> BISHOP -> KNIGHT
         if (white) {
+            queen.setImageResource(R.drawable.white_queen);
+            rook.setImageResource(R.drawable.white_rook);
+            bishop.setImageResource(R.drawable.white_bishop);
             knight.setImageResource(R.drawable.white_knight);
         } else {
+            queen.setImageResource(R.drawable.black_queen);
+            rook.setImageResource(R.drawable.black_rook);
+            bishop.setImageResource(R.drawable.black_bishop);
             knight.setImageResource(R.drawable.black_knight);
         }
+        queen.setBackgroundColor(Color.WHITE);
+        rook.setBackgroundColor(Color.WHITE);
+        bishop.setBackgroundColor(Color.WHITE);
+        knight.setBackgroundColor(Color.WHITE);
 
         for (int i = 0; i < getChildCount(); ++i) {
             getChildAt(i).setOnClickListener(new OnClickListener() {
