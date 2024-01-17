@@ -189,4 +189,7 @@ public class Board {
         mPieces[move.getOldPosition()].setPosition(move.getOldPosition());
         return move;
     }
+    public String getFen() {
+        return "r2q1rk1/ppp2ppp/3bbn2/3p4/8/1B1P4/PPPPPPPP/RNB1QRK1 w - - 5 11";
+    }
 }

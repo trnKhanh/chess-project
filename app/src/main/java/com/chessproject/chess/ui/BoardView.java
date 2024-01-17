@@ -17,13 +17,19 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.chessproject.MyApplication;
 import com.chessproject.R;
 import com.chessproject.chess.logic.Board;
 import com.chessproject.chess.logic.Knight;
 import com.chessproject.chess.logic.Piece;
+import com.chessproject.detection.ChessPositionDetector;
+import com.chessproject.evaluation.ChessPositionEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class BoardView extends FrameLayout implements BoardController {
     final static String TAG = "BoardView";
@@ -42,10 +48,23 @@ public class BoardView extends FrameLayout implements BoardController {
     PromotionView mWhitePromotionSelections, mBlackPromotionSelections;
     ArrayList<Pair<Integer, Integer>> mArrows = new ArrayList<>();
     Paint mArrowPaint = new Paint();
+    ExecutorService executorService;
     public void toggleSetupBoard() {
         mIsSetupBoard = !mIsSetupBoard;
         mBoard.clearHistory();
         requestLayout();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        executorService = Executors.newSingleThreadExecutor();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        executorService.shutdown();
     }
 
     private void initBoard(String fen) {
@@ -274,6 +293,18 @@ public class BoardView extends FrameLayout implements BoardController {
                 pieceView.animateMove();
         }
     }
+    void updateEvaluation() {
+        String fen = mBoard.getFen();
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                mArrows.clear();
+                ChessPositionEvaluator evaluator = new ChessPositionEvaluator(fen);
+                mArrows.add(evaluator.getBestMove());
+                invalidate();
+            }
+        });
+    }
     // Below is the implementation of BoardController.
     @Override
     public boolean setSelectedPiece(PieceView pieceView, boolean preserved) {
@@ -361,6 +392,8 @@ public class BoardView extends FrameLayout implements BoardController {
                                 mLastMoveEvalView.setImageResource(R.drawable.correct_icon);
                                 break;
                         }
+                        // Update evaluation
+                        updateEvaluation();
                     } else {
                         mLastMoveEvalView.setImageResource(0);
                     }
@@ -406,8 +439,13 @@ public class BoardView extends FrameLayout implements BoardController {
         }
     }
     public void finishPromotion() {
-        if (mBoard.isPromoting()) {
-            rollbackLastMove();
+        if (mPromotedPieceView != null) {
+            if (mBoard.isPromoting()) {
+                rollbackLastMove();
+            } else {
+                // Update evaluation when not rolling back
+                updateEvaluation();
+            }
         }
         mPromotedPieceView = null;
         invalidate();
@@ -447,6 +485,9 @@ public class BoardView extends FrameLayout implements BoardController {
                 this.addView(pieceView);
                 mPieceViewMap.put(move.getNewPosition(), pieceView);
             }
+            // Update evaluation
+            updateEvaluation();
+
             invalidate();
         }
     }
