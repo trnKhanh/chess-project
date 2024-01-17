@@ -3,6 +3,7 @@ package com.chessproject.detection;
 import android.graphics.Matrix;
 import android.health.connect.datatypes.HeightRecord;
 import android.health.connect.datatypes.units.Pressure;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.ArrayAdapter;
@@ -48,24 +49,17 @@ public class ChessPositionDetector {
     final static double TRANSFORMED_WIDTH = 640;
     final static double TRANSFORMED_HEIGHT = 640;
     final static double TRANSFORMED_OFFSET = 64;
-    OnResultListener onResultListener;
-    public interface OnResultListener {
-        void onResult(String fen);
-    }
-    public ChessPositionDetector(OnResultListener onResultListener) {
-        this.onResultListener = onResultListener;
-    }
-    public void detectPosition(byte[] image) {
+    public String detectPosition(byte[] image) {
         ArrayList<Point> pts = detectChessboard(image);
         ArrayList<BoundingBox> boxes = detectChessPiece(image);
         Log.d(TAG, String.valueOf(pts.size()));
         Log.d(TAG, String.valueOf(boxes.size()));
 
-
         String fen = getFen(pts, boxes);
-        onResultListener.onResult(fen);
+
+        return fen;
     }
-    public String getFen(ArrayList<Point> pts, ArrayList<BoundingBox> boxes) {
+    String getFen(ArrayList<Point> pts, ArrayList<BoundingBox> boxes) {
         long n = pts.size();
         Point F = pts.get(0);
         Point A = F;
@@ -298,7 +292,7 @@ public class ChessPositionDetector {
         return res;
     };
 
-    public ArrayList<Point> detectChessboard(byte[] image) {
+    ArrayList<Point> detectChessboard(byte[] image) {
         // Initiate retrofit and service
         Retrofit retrofit = new Retrofit.Builder().baseUrl("https://outline.roboflow.com/").build();
         SegmentationService service = retrofit.create(SegmentationService.class);
@@ -334,7 +328,7 @@ public class ChessPositionDetector {
         return pts;
     }
 
-    public ArrayList<BoundingBox> detectChessPiece(byte[] image) {
+    ArrayList<BoundingBox> detectChessPiece(byte[] image) {
         // Initiate retrofit and service
         Retrofit retrofit = new Retrofit.Builder().baseUrl("https://detect.roboflow.com/").build();
         DetectionService service = retrofit.create(DetectionService.class);

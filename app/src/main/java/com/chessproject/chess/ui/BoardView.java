@@ -2,10 +2,11 @@ package com.chessproject.chess.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -22,14 +23,12 @@ import com.chessproject.R;
 import com.chessproject.chess.logic.Board;
 import com.chessproject.chess.logic.Knight;
 import com.chessproject.chess.logic.Piece;
-import com.chessproject.detection.ChessPositionDetector;
 import com.chessproject.evaluation.ChessPositionEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class BoardView extends FrameLayout implements BoardController {
     final static String TAG = "BoardView";
@@ -47,8 +46,10 @@ public class BoardView extends FrameLayout implements BoardController {
     ImageView mLastMoveEvalView = null;
     PromotionView mWhitePromotionSelections, mBlackPromotionSelections;
     ArrayList<Pair<Integer, Integer>> mArrows = new ArrayList<>();
+    Pair<Integer, Integer> mBestMove = null;
     Paint mArrowPaint = new Paint();
-    ExecutorService executorService;
+    ExecutorService mExecutorService;
+    Handler mMainHandler;
     public void toggleSetupBoard() {
         mIsSetupBoard = !mIsSetupBoard;
         mBoard.clearHistory();
@@ -58,13 +59,8 @@ public class BoardView extends FrameLayout implements BoardController {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        executorService = Executors.newSingleThreadExecutor();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        executorService.shutdown();
+        mExecutorService = ((MyApplication)mContext.getApplicationContext()).getExecutorService();
+        mMainHandler = Handler.createAsync(Looper.getMainLooper());
     }
 
     private void initBoard(String fen) {
@@ -208,6 +204,11 @@ public class BoardView extends FrameLayout implements BoardController {
         float arrowHeadLength = (getWidth() / 8f) * 3f / 4f;
         // arrow stem width is 1/2 of arrow head width
         float arrowStemWidth = arrowHeadWidth / 2;
+        // If best move is not null then draw it only
+        if (mBestMove != null) {
+            mArrows.clear();
+            mArrows.add(mBestMove);
+        }
         // Draw all arrows
         for (Pair<Integer, Integer> arrow: mArrows) {
             int startPosition = arrow.first;
@@ -295,15 +296,35 @@ public class BoardView extends FrameLayout implements BoardController {
     }
     void updateEvaluation() {
         String fen = mBoard.getFen();
-        executorService.execute(new Runnable() {
+        // Set best move to null and clear all arrows
+        mBestMove = null;
+        mArrows.clear();
+        invalidate();
+        mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                mArrows.clear();
-                ChessPositionEvaluator evaluator = new ChessPositionEvaluator(fen);
-                mArrows.add(evaluator.getBestMove());
-                invalidate();
+                Pair<Integer, Integer> bestMove = new ChessPositionEvaluator(fen).getBestMove();
+                mMainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Only update if fen is the newest
+                        if (fen.compareTo(mBoard.getFen()) == 0) {
+                            mBestMove = bestMove;
+                            invalidate();
+                        }
+                    }
+                });
             }
         });
+    }
+    public void movePiece(int from, int to) {
+        if (mPieceViewMap.containsKey(from)) {
+            setSelectedPiece(mPieceViewMap.get(from), false);
+            placeSelectedPiece(to);
+        }
+    }
+    public Board getBoard() {
+        return mBoard;
     }
     // Below is the implementation of BoardController.
     @Override
@@ -375,8 +396,8 @@ public class BoardView extends FrameLayout implements BoardController {
                     // Update last move evaluation
                     int iconWidth = mLastMoveEvalView.getWidth();
                     int iconHeight = mLastMoveEvalView.getHeight();
-                    float iconX = mSelectedCellView.getX() + mSelectedCellView.getWidth() - (float)iconWidth / 2;
-                    float iconY = mSelectedCellView.getY() - (float)iconHeight / 2;
+                    float iconX = position % 8 * mSelectedPieceView.getWidth() + mSelectedPieceView.getWidth() - (float)iconWidth / 2;
+                    float iconY = position / 8 * mSelectedPieceView.getHeight() - (float)iconHeight / 2;
                     mLastMoveEvalView.setX(iconX);
                     mLastMoveEvalView.setY(iconY);
                     // TODO: add functionality to evaluation view

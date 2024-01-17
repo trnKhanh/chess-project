@@ -27,7 +27,6 @@ public class ChessPositionEvaluator {
     private StockfishOnlineService service;
     public ChessPositionEvaluator(String fen) {
         mFen = fen;
-
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://stockfish.online/")
                 .build();
@@ -51,7 +50,7 @@ public class ChessPositionEvaluator {
                 }
             }
         } catch (IOException | JSONException e) {
-            Log.e(TAG, "Chessboard evaluation failed: " + e.getMessage());
+            Log.e(TAG, "Chess position evaluation failed: " + e.getMessage());
         }
         return 0;
     }
@@ -70,7 +69,7 @@ public class ChessPositionEvaluator {
                 return new Pair<>(fromPosition, toPosition);
             }
         } catch (IOException | JSONException e) {
-            Log.e(TAG, "Chessboard evaluation failed: " + e.getMessage());
+            Log.e(TAG, "Chess position get best move failed: " + e.getMessage());
         }
         return null;
     }

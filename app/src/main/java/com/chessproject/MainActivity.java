@@ -1,7 +1,11 @@
 package com.chessproject;
 
+import static com.chessproject.Utils.getBytesFromBitmap;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -38,37 +42,30 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 //                boardView.rollbackLastMove();
-                mExecutorService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        String fen = "r2q1rk1/ppp2ppp/3bbn2/3p4/8/1B1P4/PPPPPPPP/RNB1QRK1 w - - 5 11";
-                        ChessPositionEvaluator evaluator = new ChessPositionEvaluator(fen);
-                        Log.d(TAG, String.valueOf(evaluator.getBestMove()));
-                    }
-                });
+                boardView.movePiece(15, 5);
+                boardView.invalidate();
             }
         });
 
 
-//        detector = new ChessPositionDetector(new ChessPositionDetector.OnResultListener() {
-//            @Override
-//            public void onResult(String fen) {
-//                Log.d(TAG, fen);
-//            }
-//        });
+//        detector = new ChessPositionDetector();
 //        Button btn = (Button) findViewById(R.id.button);
 //        btn.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                if (handler != null) {
-//                    handler.post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.chessboard);
-//                            detector.detectPosition(getBytesFromBitmap(bitmap));
-//                        }
-//                    });
-//                }
+//                mExecutorService.execute(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.chessboard);
+//                        String fen = detector.detectPosition(getBytesFromBitmap(bitmap));
+//                        mMainHandler.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                btn.setText(fen);
+//                            }
+//                        });
+//                    }
+//                });
 //            }
 //        });
 
