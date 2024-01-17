@@ -17,6 +17,7 @@ import android.widget.Button;
 import com.chessproject.chess.logic.Board;
 import com.chessproject.chess.ui.BoardView;
 import com.chessproject.detection.ChessPositionDetector;
+import com.chessproject.evaluation.ChessPositionEvaluator;
 
 import java.io.ByteArrayOutputStream;
 
@@ -38,9 +39,19 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boardView.rollbackLastMove();
+//                boardView.rollbackLastMove();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        String fen = "r2q1rk1/ppp2ppp/3bbn2/3p4/8/1B1P4/PPPPPPPP/RNB1QRK1 w - - 5 11";
+                        ChessPositionEvaluator evaluator = new ChessPositionEvaluator(fen);
+                        Log.d(TAG, String.valueOf(evaluator.getBestMove()));
+                    }
+                });
             }
         });
+
+
 //        detector = new ChessPositionDetector(new ChessPositionDetector.OnResultListener() {
 //            @Override
 //            public void onResult(String fen) {
