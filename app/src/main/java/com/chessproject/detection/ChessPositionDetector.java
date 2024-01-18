@@ -1,46 +1,38 @@
 package com.chessproject.detection;
 
 import android.graphics.Matrix;
-import android.health.connect.datatypes.HeightRecord;
-import android.health.connect.datatypes.units.Pressure;
-import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
-import android.widget.ArrayAdapter;
-
-import androidx.annotation.NonNull;
 
 import com.chessproject.detection.data.BoundingBox;
 import com.chessproject.detection.data.Point;
 import com.chessproject.detection.services.DetectionService;
 import com.chessproject.detection.services.SegmentationService;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.http.Body;
-import retrofit2.http.FormUrlEncoded;
-import retrofit2.http.Multipart;
-import retrofit2.http.POST;
 
 public class ChessPositionDetector {
     final static String API_KEY = "7k9RzlTrav0kMFIzfIgu";
@@ -49,15 +41,38 @@ public class ChessPositionDetector {
     final static double TRANSFORMED_WIDTH = 640;
     final static double TRANSFORMED_HEIGHT = 640;
     final static double TRANSFORMED_OFFSET = 64;
+    ExecutorService mExecutorService = Executors.newFixedThreadPool(2);
+
     public String detectPosition(byte[] image) {
-        ArrayList<Point> pts = detectChessboard(image);
-        ArrayList<BoundingBox> boxes = detectChessPiece(image);
-        Log.d(TAG, String.valueOf(pts.size()));
-        Log.d(TAG, String.valueOf(boxes.size()));
+        List<Callable<Object>> callables = new ArrayList<>();
+        callables.add(new Callable<Object>() {
+            @Override
+            public ArrayList<Point> call() throws Exception {
+                return detectChessboard(image);
+            }
+        });
+        callables.add(new Callable<Object>() {
+            @Override
+            public ArrayList<BoundingBox> call() throws Exception {
+                return detectChessPiece(image);
+            }
+        });
+        ArrayList<Point> pts = null;
+        ArrayList<BoundingBox> boxes = null;
+        try {
+            List<Future<Object>> results = mExecutorService.invokeAll(callables);
+            pts = (ArrayList<Point>) results.get(0).get();
+            boxes = (ArrayList<BoundingBox>) results.get(1).get();
+            Log.d(TAG, String.valueOf(pts.size()));
+            Log.d(TAG, String.valueOf(boxes.size()));
+            String fen = getFen(pts, boxes);
 
-        String fen = getFen(pts, boxes);
+            return fen;
+        } catch (InterruptedException | ExecutionException e) {
+            Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+        }
 
-        return fen;
+        return null;
     }
     String getFen(ArrayList<Point> pts, ArrayList<BoundingBox> boxes) {
         long n = pts.size();
