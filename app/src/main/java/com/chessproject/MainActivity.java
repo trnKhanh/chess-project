@@ -3,97 +3,65 @@ package com.chessproject;
 import static com.chessproject.Utils.getBytesFromBitmap;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 
 import com.chessproject.chess.ui.BoardView;
+import com.chessproject.databinding.ActivityMainBinding;
 import com.chessproject.detection.ChessPositionDetector;
 import com.chessproject.evaluation.ChessPositionEvaluator;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.concurrent.ExecutorService;
 
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "Main activity";
-//    HandlerThread handlerThread;
-//    Handler handler;
-    ChessPositionDetector detector;
-    ExecutorService mExecutorService;
-    Handler mMainHandler;
+    private ActivityMainBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        // Set ExecutorService
-        mExecutorService = ((MyApplication) getApplication()).getExecutorService();
-        // Set main handler
-        mMainHandler = ((MyApplication) getApplication()).getMainHandler();
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        BoardView boardView = (BoardView) findViewById(R.id.chessboard);
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_home, R.id.navigation_camera, R.id.navigation_notifications)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
-//        Button btn = (Button) findViewById(R.id.button);
-//        btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-////                boardView.rollbackLastMove();
-//                boardView.movePiece(15, 5);
-//                boardView.invalidate();
-//            }
-//        });
+        if (getIntent().hasExtra("FRAGMENT_TO_SHOW")) {
+            Log.d("FRAGMENT NAME", getIntent().getStringExtra("FRAGMENT_TO_SHOW"));
+            String fragmentToShow = getIntent().getStringExtra("FRAGMENT_TO_SHOW");
+            switchFragment(navController, fragmentToShow);
+        }
 
-
-        detector = new ChessPositionDetector();
-        Button btn = (Button) findViewById(R.id.button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mExecutorService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.chessboard);
-                        String fen = detector.detectPosition(getBytesFromBitmap(bitmap));
-                        mMainHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                btn.setText(fen);
-                            }
-                        });
-                    }
-                });
-            }
-        });
-
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        NavigationUI.setupWithNavController(binding.navView, navController);
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-//        handlerThread = new HandlerThread("detector");
-//        handlerThread.start();
-//        handler = new Handler(handlerThread.getLooper());
+    private void switchFragment(NavController navController, String fragmentTag) {
+        int destinationId = 0;
+        switch (fragmentTag) {
+            case "CameraFragment":
+                destinationId = R.id.navigation_camera;
+                break;
+            case "HomeFragment":
+                destinationId = R.id.navigation_home;
+                break;
+            case "NotificationFragment":
+                destinationId = R.id.navigation_notifications;
+                break;
+        }
+        if (destinationId != 0) {
+            navController.navigate(destinationId);
+        }
     }
-
-    @Override
-    protected void onPause() {
-//        handlerThread.quitSafely();
-//
-//        try {
-////            handlerThread.join();
-////            handlerThread = null;
-////            handler = null;
-//        } catch (InterruptedException e) {
-//            Log.e(TAG, "Exception: " + e.getMessage());
-//        }
-
-        super.onPause();
-    }
-
-
 }
