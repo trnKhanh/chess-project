@@ -34,6 +34,8 @@ public class BoardView extends FrameLayout implements BoardController {
     final static String TAG = "BoardView";
     final static int DEFAULT_WIDTH = 800;
     final static int DEFAULT_HEIGHT = 800;
+    public final static int CORRECT_MOVE = 1;
+    public final static int WRONG_MOVE = 2;
     Context mContext;
     PieceView mSelectedPieceView = null;
     PieceView mPromotedPieceView = null;
@@ -323,6 +325,18 @@ public class BoardView extends FrameLayout implements BoardController {
             placeSelectedPiece(to);
         }
     }
+    public void setLastMoveEvaluation(int state) {
+        switch (state) {
+            case CORRECT_MOVE:
+                mLastMoveEvalView.setImageResource(R.drawable.correct_icon);
+                break;
+            case WRONG_MOVE:
+                mLastMoveEvalView.setImageResource(R.drawable.missed_icon);
+                break;
+            default:
+                mLastMoveEvalView.setImageResource(0);
+        }
+    }
     public Board getBoard() {
         return mBoard;
     }
@@ -402,17 +416,6 @@ public class BoardView extends FrameLayout implements BoardController {
                     mLastMoveEvalView.setY(iconY);
                     // TODO: add functionality to evaluation view
                     if (!isPromotion) {
-                        switch (mBoard.getLastMoveEvaluation()) {
-                            case 0:
-                                mLastMoveEvalView.setImageResource(0);
-                                break;
-                            case 1:
-                                mLastMoveEvalView.setImageResource(R.drawable.missed_icon);
-                                break;
-                            case 2:
-                                mLastMoveEvalView.setImageResource(R.drawable.correct_icon);
-                                break;
-                        }
                         // Update evaluation
                         updateEvaluation();
                     } else {
