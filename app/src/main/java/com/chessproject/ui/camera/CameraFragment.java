@@ -29,10 +29,13 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.CameraController;
+import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.chessproject.R;
@@ -86,6 +89,7 @@ public class CameraFragment extends Fragment {
                 CameraSelector cameraSelector = new CameraSelector.Builder()
                         .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                         .build();
+                CameraSelector cameraSelector1 = CameraSelector.DEFAULT_BACK_CAMERA;
 
                 androidx.camera.core.Camera camera = cameraProvider.bindToLifecycle(
                         this, // Use the fragment as the LifecycleOwner

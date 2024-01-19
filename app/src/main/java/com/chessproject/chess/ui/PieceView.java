@@ -28,7 +28,7 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
         mPiece = piece;
         mBoardController = boardController;
         // Set Z so that piece is above cell
-        setZ(1);
+        setZ(2);
         // Set image resource to correct piece
         setImageResource(mPiece.getImageResource());
     }

@@ -20,7 +20,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.concurrent.ExecutorService;
 
 public class MainActivity extends AppCompatActivity {
-    final static String TAG = "Main activity";
+    final static String TAG = "MainActivity";
     private ActivityMainBinding binding;
 
     @Override

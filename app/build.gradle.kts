@@ -47,8 +47,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation("androidx.navigation:navigation-fragment:2.5.3")
     implementation("androidx.navigation:navigation-ui:2.5.3")
-    implementation("androidx.camera:camera-view:1.3.1")
-    implementation("androidx.camera:camera-lifecycle:1.3.1")
 
     // CameraX core library using the camera2 implementation
     val camerax_version = "1.4.0-alpha03"

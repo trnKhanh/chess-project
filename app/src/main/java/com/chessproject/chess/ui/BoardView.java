@@ -112,13 +112,13 @@ public class BoardView extends FrameLayout implements BoardController {
         // Promotion views
         mWhitePromotionSelections = new PromotionView(mContext, true, this);
         mWhitePromotionSelections.setOrientation(LinearLayout.VERTICAL);
-        mWhitePromotionSelections.setZ(3);
+        mWhitePromotionSelections.setZ(4);
         mWhitePromotionSelections.setVisibility(GONE);
         this.addView(mWhitePromotionSelections);
 
         mBlackPromotionSelections = new PromotionView(mContext, false, this);
         mBlackPromotionSelections.setOrientation(LinearLayout.VERTICAL);
-        mBlackPromotionSelections.setZ(3);
+        mBlackPromotionSelections.setZ(4);
         mBlackPromotionSelections.setVisibility(GONE);
         this.addView(mBlackPromotionSelections);
     }
@@ -351,7 +351,7 @@ public class BoardView extends FrameLayout implements BoardController {
         } else if (!preserved) {
             // If not need to preserve current selected piece
             // then set the Z of old selection to normal and select new piece.
-            mSelectedPieceView.setZ(1);
+            mSelectedPieceView.setZ(2);
             mSelectedPieceView = pieceView;
         }
         // TODO: Implement Setup Board separately
@@ -368,8 +368,8 @@ public class BoardView extends FrameLayout implements BoardController {
             this.addView(newPieceView);
             mExtraPieceViews.add(newPieceView);
         }
-        // Set Z to 2 so that it is above all other pieces.
-        mSelectedPieceView.setZ(2);
+        // Set Z to 3 so that it is above all other pieces.
+        mSelectedPieceView.setZ(3);
         invalidate();
         // Return if the select action is successful.
         return mSelectedPieceView == pieceView;
@@ -387,8 +387,8 @@ public class BoardView extends FrameLayout implements BoardController {
             boolean success = mSelectedPieceView.getPiece().moveTo(position);
             // Animate move the new position.
 //            mSelectedPieceView.animateMove();
-            // Set Z back to 1 so that it is on the same level of other pieces.
-            mSelectedPieceView.setZ(1);
+            // Set Z back to 2 so that it is on the same level of other pieces.
+            mSelectedPieceView.setZ(2);
             // If the new position is different from old position, i.e user clicks the other other cell.
             if (oldPosition != position) {
                 // If the move is successful/legal
@@ -421,13 +421,18 @@ public class BoardView extends FrameLayout implements BoardController {
                     } else {
                         mLastMoveEvalView.setImageResource(0);
                     }
-                } else if (mIsSetupBoard) {
-                    // If it is a setup board then remove a piece when it go out side the board/failed move.
-                    mPieceViewMap.remove(oldPosition);
-                    this.removeView(mSelectedPieceView);
+                } else {
+                    if (mIsSetupBoard) {
+                        // If it is a setup board then remove a piece when it go out side the board/failed move.
+                        mPieceViewMap.remove(oldPosition);
+                        this.removeView(mSelectedPieceView);
+                    }
                 }
                 // Deselect the piece.
                 mSelectedPieceView = null;
+            } else {
+                // Move selected piece back to center of its cell
+                mSelectedPieceView.animateMove();
             }
         }
         // Deselect the cell
