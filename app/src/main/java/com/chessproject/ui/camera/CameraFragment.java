@@ -1,5 +1,7 @@
 package com.chessproject.ui.camera;
 
+import static com.chessproject.Utils.imageToBitmap;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -11,6 +13,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +47,8 @@ public class CameraFragment extends Fragment {
     private FragmentCameraBinding binding;
 
     private static final int REQUEST_CODE_SELECT_IMAGE = 1001;
-    private static final int REQUEST_CODE_STORAGE_PERMISSION = 1002;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
+    private static final int FILE_STORAGE_PERMISSION_REQUEST_CODE = 101;
 
     ImageView capturedImageView;
     Button backButton;
@@ -127,18 +131,23 @@ public class CameraFragment extends Fragment {
 
     public void captureImage() {
         if (imageCapture != null) {
-            imageCapture.takePicture(ContextCompat.getMainExecutor(getContext()), new ImageCapture.OnImageCapturedCallback() {
-                @Override
-                public void onCaptureSuccess(@NonNull ImageProxy image) {
-                    displayCapturedImage(image);
-                    image.close();
-                }
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED) {
+                imageCapture.takePicture(ContextCompat.getMainExecutor(getContext()), new ImageCapture.OnImageCapturedCallback() {
+                    @Override
+                    public void onCaptureSuccess(@NonNull ImageProxy image) {
+                        displayCapturedImage(image);
+                        image.close();
+                    }
 
-                @Override
-                public void onError(@NonNull ImageCaptureException exception) {
-                    exception.printStackTrace();
-                }
-            });
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        exception.printStackTrace();
+                    }
+                });
+            } else {
+                requestCameraPermission();
+            }
         }
     }
     private void displayCapturedImage(ImageProxy image) {
@@ -151,23 +160,6 @@ public class CameraFragment extends Fragment {
         generateButton.setVisibility(View.VISIBLE);
         openGalleryButton.setVisibility(View.GONE);
     }
-
-    private Bitmap imageToBitmap(ImageProxy image) {
-        ImageProxy.PlaneProxy plane = image.getPlanes()[0];
-        ByteBuffer buffer = plane.getBuffer();
-        byte[] bytes = new byte[buffer.remaining()];
-        buffer.get(bytes);
-
-        return rotateBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length), 90);
-    }
-
-
-    public static Bitmap rotateBitmap(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-    }
-
 
     private void showNextTurnOptionsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -195,8 +187,13 @@ public class CameraFragment extends Fragment {
     }
 
     private void openGalleryForImage() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, REQUEST_CODE_SELECT_IMAGE);
+//        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+//                == PackageManager.PERMISSION_GRANTED) {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, REQUEST_CODE_SELECT_IMAGE);
+//        } else {
+//            requestFileStoragePermission();
+//        }
     }
 
     @Override
@@ -215,24 +212,36 @@ public class CameraFragment extends Fragment {
         }
     }
 
-    private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(),
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_STORAGE_PERMISSION);
-        } else {
-            openGalleryForImage();
-        }
+
+    private void requestCameraPermission() {
+        ActivityCompat.requestPermissions(requireActivity(),
+                new String[]{Manifest.permission.CAMERA},
+                CAMERA_PERMISSION_REQUEST_CODE);
+    }
+
+    private void requestFileStoragePermission() {
+        ActivityCompat.requestPermissions(requireActivity(),
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                FILE_STORAGE_PERMISSION_REQUEST_CODE);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE_STORAGE_PERMISSION) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                captureImage();
+            } else {
+                Toast.makeText(requireContext(), "Permission Denied!", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == FILE_STORAGE_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // File storage permission granted, proceed with file-related operations
                 openGalleryForImage();
             } else {
                 Toast.makeText(requireContext(), "Permission Denied!", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
 }
