@@ -2,12 +2,14 @@ package com.chessproject;
 
 import static com.chessproject.Utils.getBytesFromBitmap;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -22,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "Main activity";
     private ActivityMainBinding binding;
-
+    NavController navController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_camera, R.id.navigation_notifications)
                 .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
         if (getIntent().hasExtra("FRAGMENT_TO_SHOW")) {
             Log.d("FRAGMENT NAME", getIntent().getStringExtra("FRAGMENT_TO_SHOW"));
@@ -47,6 +49,12 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        return navController.navigateUp();
+    }
+
     private void switchFragment(NavController navController, String fragmentTag) {
         int destinationId = 0;
         switch (fragmentTag) {

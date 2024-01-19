@@ -22,4 +22,10 @@
         android:name="com.chessproject.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_prepare_image"
+        android:name="com.chessproject.ui.camera.PrepareImageFragment"
+        android:label="@string/title_prepare_image"
+        tools:layout="@layout/fragment_notifications" />
 </navigation>
