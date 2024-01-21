@@ -68,8 +68,8 @@ public class ChessPositionDetector {
             String fen = getFen(pts, boxes);
 
             return fen;
-        } catch (InterruptedException | ExecutionException e) {
-            Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return null;

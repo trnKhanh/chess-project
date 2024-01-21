@@ -1,9 +1,12 @@
 package com.chessproject.ui.camera;// ... (existing imports)
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,17 +18,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 
 import com.chessproject.R;
+import com.chessproject.ui.chessboard.ChessBoardFragment;
 
 public class PrepareImageFragment extends Fragment implements View.OnClickListener {
 
     private CameraViewModel cameraViewModel;
-
     ImageView capturedImageView;
 
     Button continueButton;
-    Button cancelButton;
 
     TextView blackTurnButton;
     TextView whiteTurnButton;
@@ -37,6 +42,9 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
 
     private boolean isWhiteTurn = true;
     private boolean isWhiteView = true;
+
+    private ProgressDialog progressDialog;
+    private NavController navController;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,6 +61,11 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
         whiteViewButton.setOnClickListener(this);
         blackTurnButton.setOnClickListener(this);
         whiteTurnButton.setOnClickListener(this);
+        continueButton.setOnClickListener(this);
+
+        progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setMessage("Detecting...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
         return root;
     }
@@ -100,6 +113,25 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    private void hideProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    private void showProgressDialog() {
+        if (progressDialog != null && !progressDialog.isShowing()) {
+            progressDialog.show();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    hideProgressDialog();
+                    navController.navigate(R.id.navigation_chess_board);
+                }
+            }, 1000);
+        }
+    }
+
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -111,8 +143,15 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
             isWhiteTurn = true;
         } else if (id == R.id.nextTurnIsBlack) {
             isWhiteTurn = false;
+        } else if (id == R.id.continueButton){
+            goToCheckBoardFragment();
         }
 
         fixToggleButton();
+    }
+
+    private void goToCheckBoardFragment() {
+        navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
+        showProgressDialog();
     }
 }

@@ -28,4 +28,9 @@
         android:name="com.chessproject.ui.camera.PrepareImageFragment"
         android:label="@string/title_prepare_image"
         tools:layout="@layout/fragment_notifications" />
+    <fragment
+        android:id="@+id/navigation_chess_board"
+        android:name="com.chessproject.ui.chessboard.ChessBoardFragment"
+        android:label="@string/title_chess_board"
+        tools:layout="@layout/fragment_chess_board"/>
 </navigation>

@@ -52,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
+        if(navController.getCurrentDestination().getId() == R.id.navigation_chess_board){
+            return navController.popBackStack(R.id.navigation_camera, false);
+        }
         return navController.navigateUp();
     }
 
