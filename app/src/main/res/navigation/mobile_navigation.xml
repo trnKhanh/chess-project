@@ -19,7 +19,23 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.chessproject.ui.notifications.NotificationsFragment"
+        android:name="com.chessproject.ui.games.GamesFragment"
         android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_games" />
+
+    <fragment
+        android:id="@+id/navigation_evaluation_game"
+        android:name="com.chessproject.ui.games.EvaluationGameFragment"
+        android:label="Guess the evaluation"
+        tools:layout="@layout/fragment_evaluation_game" />
+    <fragment
+        android:id="@+id/navigation_puzzle"
+        android:name="com.chessproject.ui.games.PuzzleFragment"
+        android:label="Puzzle"
+        tools:layout="@layout/fragment_puzzle" />
+    <fragment
+        android:id="@+id/navigation_blind_puzzle"
+        android:name="com.chessproject.ui.games.BlindPuzzleFragment"
+        android:label="Blind Puzzle"
+        tools:layout="@layout/fragment_blind_puzzle" />
 </navigation>

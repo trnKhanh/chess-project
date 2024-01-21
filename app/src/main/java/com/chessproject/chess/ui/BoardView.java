@@ -1,10 +1,14 @@
 package com.chessproject.chess.ui;
 
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Mesh;
+import android.graphics.MeshSpecification;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -37,35 +41,28 @@ public class BoardView extends FrameLayout implements BoardController {
     public final static int CORRECT_MOVE = 1;
     public final static int WRONG_MOVE = 2;
     Context mContext;
-    PieceView mSelectedPieceView = null;
     PieceView mPromotedPieceView = null;
     Board mBoard;
     CellView[] mCellViews = new CellView[64];
     HashMap<Integer, PieceView> mPieceViewMap = new HashMap<>();
     ArrayList<PieceView> mExtraPieceViews = new ArrayList<>();
     boolean mIsSetupBoard = false;
+    int mSelectedPosition = -1;
     CellView mSelectedCellView = null;
     ImageView mLastMoveEvalView = null;
     PromotionView mWhitePromotionSelections, mBlackPromotionSelections;
     ArrayList<Pair<Integer, Integer>> mArrows = new ArrayList<>();
     Pair<Integer, Integer> mBestMove = null;
     Paint mArrowPaint = new Paint();
-    ExecutorService mExecutorService;
-    Handler mMainHandler;
-    public void toggleSetupBoard() {
-        mIsSetupBoard = !mIsSetupBoard;
-        mBoard.clearHistory();
-        requestLayout();
+    boolean mIsHidden = false;
+    boolean mDisabled = false;
+    boolean mIsEvaluated = false;
+    public interface FinishedMoveListener {
+        void onFinishMove(Board.Move move);
     }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        mExecutorService = ((MyApplication)mContext.getApplicationContext()).getExecutorService();
-        mMainHandler = Handler.createAsync(Looper.getMainLooper());
-    }
-
+    FinishedMoveListener mFinishedMoveListener = null;
     private void initBoard(String fen) {
+        removeAllViews();
         // Set clip children to false so that piece can be view even if it is outside of board.
         setClipChildren(false);
         // Set will not draw to false so that invalidate will trigger onDraw.
@@ -73,11 +70,6 @@ public class BoardView extends FrameLayout implements BoardController {
         // Set arrow paint
         mArrowPaint.setARGB(200, 0, 255, 0);
         mArrowPaint.setStrokeWidth(2);
-        // TODO: Dummy arrows only, remove after testing
-        mArrows.add(new Pair<>(20, 2));
-        mArrows.add(new Pair<>(8, 23));
-        mArrows.add(new Pair<>(7, 24));
-        mArrows.add(new Pair<>(56, 47));
         // Create board based on fen.
         mBoard = new Board(fen);
         // Create PieceView for each pieces in board.
@@ -97,17 +89,6 @@ public class BoardView extends FrameLayout implements BoardController {
         // Add last move evaluation icon
         mLastMoveEvalView = new ImageView(mContext);
         this.addView(mLastMoveEvalView);
-
-        // TODO: Implement Setup Board separately
-        Piece whiteKnight = new Knight(true, 9 * 8, mBoard);
-        PieceView whiteKnightView = new PieceView(mContext, whiteKnight, this);
-//        mExtraPieceViews.add(whiteKnightView);
-//        this.addView(whiteKnightView);
-
-        Piece blackKnight = new Knight(false, 10 * 8, mBoard);
-        PieceView blackKnightView = new PieceView(mContext, blackKnight, this);
-//        mExtraPieceViews.add(blackKnightView);
-//        this.addView(blackKnightView);
 
         // Promotion views
         mWhitePromotionSelections = new PromotionView(mContext, true, this);
@@ -136,12 +117,18 @@ public class BoardView extends FrameLayout implements BoardController {
         mContext = context;
         initBoard(fen);
     }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
+        int boardSize = Math.min(width, height);
+        widthMeasureSpec = MeasureSpec.makeMeasureSpec(boardSize, MeasureSpec.EXACTLY);
+        heightMeasureSpec = MeasureSpec.makeMeasureSpec(boardSize, MeasureSpec.EXACTLY);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        width = getMeasuredWidth();
+        height = getMeasuredHeight();
         // Measure all the children: CellViews and PieceViews
         int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width / 8, MeasureSpec.EXACTLY);
         int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(width / 8, MeasureSpec.EXACTLY);
@@ -165,9 +152,16 @@ public class BoardView extends FrameLayout implements BoardController {
         mBlackPromotionSelections.measure(promotionSelectionWidthMeasureSpec, promotionSelectionHeightMeasureSpec);
         mWhitePromotionSelections.measure(promotionSelectionWidthMeasureSpec, promotionSelectionHeightMeasureSpec);
     }
-
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (mDisabled)
+            return true;
+        return super.onInterceptTouchEvent(ev);
+    }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mDisabled)
+            return true;
         // Touch event handled to correctly show the current selected cell.
         // Calculate position of touched.
         int cellWidth = getWidth() / 8;
@@ -189,8 +183,21 @@ public class BoardView extends FrameLayout implements BoardController {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
-                if (event.getX() >= 0 && event.getX() <= getWidth() && event.getY() >= 0 && event.getY() <= getHeight())
-                    placeSelectedPiece(position);
+                if (event.getX() >= 0 && event.getX() <= getWidth() && event.getY() >= 0 && event.getY() <= getHeight()) {
+                    if (mIsHidden){
+                        if (mSelectedPosition == -1)
+                            setSelectedPiece(position, false);
+                        else {
+                            if (position == mSelectedPosition)
+                                setSelectedPiece(-1, false);
+                            else
+                                placeSelectedPiece(position);
+                        }
+                    }
+                    else {
+                        placeSelectedPiece(position);
+                    }
+                }
                 setSelectedCell(-1);
                 break;
         }
@@ -200,61 +207,76 @@ public class BoardView extends FrameLayout implements BoardController {
     @Override
     public void onDrawForeground(@NonNull Canvas canvas) {
         super.onDrawForeground(canvas);
+
+        // If best move is not null then draw it only
+        if (mBestMove != null) {
+            mArrows.clear();
+            mArrows.add(mBestMove);
+        }
+        if (mIsHidden) {
+            // If in hidden mode, then draw arrow as last move
+            Board.Move move = mBoard.getLastMove();
+            if (move != null)
+                drawArrow(new Pair<>(move.getOldPosition(), move.getNewPosition()), canvas, mArrowPaint);
+        }
+        // Draw all arrows
+        for (Pair<Integer, Integer> arrow: mArrows) {
+            drawArrow(arrow, canvas, mArrowPaint);
+        }
+    }
+    void drawArrow(Pair<Integer, Integer> arrow, Canvas canvas, Paint paint) {
         // arrow head width is 3/4 of cell width
         float arrowHeadWidth = (getWidth() / 8f) * 3f / 4f;
         // arrow head length is 3/4 of cell width
         float arrowHeadLength = (getWidth() / 8f) * 3f / 4f;
         // arrow stem width is 1/2 of arrow head width
         float arrowStemWidth = arrowHeadWidth / 2;
-        // If best move is not null then draw it only
-        if (mBestMove != null) {
-            mArrows.clear();
-            mArrows.add(mBestMove);
-        }
-        // Draw all arrows
-        for (Pair<Integer, Integer> arrow: mArrows) {
-            int startPosition = arrow.first;
-            int endPosition = arrow.second;
-            // Root of arrow is the center of the start cell
-            float startX = startPosition % 8 * (getWidth() / 8f) + getWidth() / 16f;
-            float startY = startPosition / 8 * (getHeight() / 8f) + getHeight() / 16f;
-            // Head of arrow is the center of the end cell
-            float endX = endPosition % 8 * (getWidth() / 8f) + getWidth() / 16f;
-            float endY = endPosition / 8 * (getHeight() / 8f) + getHeight() / 16f;
-            // Calculate arrow length
-            float arrowLength = (float) Math.sqrt((endX - startX) * (endX - startX) + (endY - startY) * (endY - startY));
-            // Calculate sin and cos for rotation
-            float sin = (endX - startX) / arrowLength;
-            float cos = -(endY - startY) / arrowLength;
+        int startPosition = arrow.first;
+        int endPosition = arrow.second;
+        // Root of arrow is the center of the start cell
+        float startX = startPosition % 8 * (getWidth() / 8f) + getWidth() / 16f;
+        float startY = startPosition / 8 * (getHeight() / 8f) + getHeight() / 16f;
+        // Head of arrow is the center of the end cell
+        float endX = endPosition % 8 * (getWidth() / 8f) + getWidth() / 16f;
+        float endY = endPosition / 8 * (getHeight() / 8f) + getHeight() / 16f;
+        // Calculate arrow length
+        float arrowLength = (float) Math.sqrt((endX - startX) * (endX - startX) + (endY - startY) * (endY - startY));
+        // Calculate sin and cos for rotation
+        float sin = (endX - startX) / arrowLength;
+        float cos = -(endY - startY) / arrowLength;
 
-            Path path = new Path();
+        Path path = new Path();
 
-            path.moveTo(startX, startY);
-            // Draw vertical arrow rooted at start position
-            path.lineTo(startX - arrowStemWidth / 2, startY);
-            path.lineTo(startX - arrowStemWidth / 2, startY - arrowLength + arrowHeadLength);
-            path.lineTo(startX - arrowHeadWidth / 2, startY - arrowLength + arrowHeadLength);
-            path.lineTo(startX, startY - arrowLength);
-            path.lineTo(startX + arrowHeadWidth / 2, startY - arrowLength + arrowHeadLength);
-            path.lineTo(startX + arrowStemWidth / 2, startY - arrowLength + arrowHeadLength);
-            path.lineTo(startX + arrowStemWidth / 2, startY);
-            path.lineTo(startX, startY);
-            // Rotate arrow to correct destination
-            Matrix matrix = new Matrix();
-            matrix.setSinCos(sin, cos, startX, startY);
+        path.moveTo(startX, startY);
+        // Draw vertical arrow rooted at start position
+        path.lineTo(startX - arrowStemWidth / 2, startY);
+        path.lineTo(startX - arrowStemWidth / 2, startY - arrowLength + arrowHeadLength);
+        path.lineTo(startX - arrowHeadWidth / 2, startY - arrowLength + arrowHeadLength);
+        path.lineTo(startX, startY - arrowLength);
+        path.lineTo(startX + arrowHeadWidth / 2, startY - arrowLength + arrowHeadLength);
+        path.lineTo(startX + arrowStemWidth / 2, startY - arrowLength + arrowHeadLength);
+        path.lineTo(startX + arrowStemWidth / 2, startY);
+        path.lineTo(startX, startY);
+        // Rotate arrow to correct destination
+        Matrix matrix = new Matrix();
+        matrix.setSinCos(sin, cos, startX, startY);
 //            matrix.setRotate(angle, startX, startY);
-            path.transform(matrix);
+        path.transform(matrix);
 
-            canvas.drawPath(path, mArrowPaint);
-        }
+        canvas.drawPath(path, paint);
     }
-
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         // Clear state of all cells.
         for (int i = 0; i < 64; ++i) {
             mCellViews[i].clearState();
+        }
+        for (PieceView pieceView: mPieceViewMap.values()) {
+            if (mIsHidden)
+                pieceView.setVisibility(GONE);
+            else
+                pieceView.setVisibility(VISIBLE);
         }
         // TODO: Implement Setup Board separately
         if (mIsSetupBoard) {
@@ -283,30 +305,53 @@ public class BoardView extends FrameLayout implements BoardController {
             mCellViews[lastMove.getOldPosition()].toggleHighlighted();
             mCellViews[lastMove.getNewPosition()].toggleHighlighted();
         }
+        // In hidden mode, highlight CellView at selected position
+        if (mIsHidden && mSelectedPosition != -1) {
+            mCellViews[mSelectedPosition].toggleHighlighted();
+        }
         // If there is selected piece then presenting it legal moves.
-        if (mSelectedPieceView != null) {
-            ArrayList<Integer> legalMoves = mSelectedPieceView.getPiece().getLegalMoves();
+        if (mPieceViewMap.containsKey(mSelectedPosition) && !mIsHidden) {
+            mCellViews[mSelectedPosition].toggleHighlighted();
+            ArrayList<Integer> legalMoves = mPieceViewMap.get(mSelectedPosition).getPiece().getLegalMoves();
             for (int position: legalMoves) {
                 mCellViews[position].toggleLegalMove(mBoard.getPiece(position) != null);
             }
         }
         // Animate move of all PieceViews
         for (PieceView pieceView: mPieceViewMap.values()) {
-            if (pieceView != mSelectedPieceView)
+            if (pieceView.getPiece().getPosition() != mSelectedPosition)
                 pieceView.animateMove();
         }
     }
+    public void setFen(String fen) {
+        initBoard(fen);
+    }
+    public void setFinishedMoveListener(FinishedMoveListener finishedMoveListener) {
+        mFinishedMoveListener = finishedMoveListener;
+    }
+    void finishMove() {
+        updateEvaluation();
+        if (mFinishedMoveListener != null) {
+            mFinishedMoveListener.onFinishMove(mBoard.getLastMove());
+        }
+        invalidate();
+    }
     void updateEvaluation() {
+        if (!mIsEvaluated)
+            return;
+
+        ExecutorService executorService = ((MyApplication)mContext.getApplicationContext()).getExecutorService();
+        Handler mainHandler = ((MyApplication)mContext.getApplicationContext()).getMainHandler();
         String fen = mBoard.getFen();
         // Set best move to null and clear all arrows
         mBestMove = null;
         mArrows.clear();
         invalidate();
-        mExecutorService.execute(new Runnable() {
+        executorService.execute(new Runnable() {
             @Override
             public void run() {
                 Pair<Integer, Integer> bestMove = new ChessPositionEvaluator(fen).getBestMove();
-                mMainHandler.post(new Runnable() {
+                mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         // Only update if fen is the newest
@@ -319,10 +364,39 @@ public class BoardView extends FrameLayout implements BoardController {
             }
         });
     }
-    public void movePiece(int from, int to) {
-        if (mPieceViewMap.containsKey(from)) {
-            setSelectedPiece(mPieceViewMap.get(from), false);
-            placeSelectedPiece(to);
+    void showPromotionBox() {
+        int promotionBoxX = (int)mPromotedPieceView.getPiece().getPosition() % 8 * (getWidth() / 8);
+        int promotionBoxY = (int)mPromotedPieceView.getPiece().getPosition() / 8 * (getHeight() / 8);
+        promotionBoxY = Math.min(promotionBoxY, getHeight() / 2);
+        if (mPromotedPieceView.getPiece().isWhite()) {
+            mWhitePromotionSelections.setVisibility(VISIBLE);
+            mWhitePromotionSelections.setX(promotionBoxX);
+            mWhitePromotionSelections.setY(promotionBoxY);
+        } else {
+            mBlackPromotionSelections.setVisibility(VISIBLE);
+            mBlackPromotionSelections.setX(promotionBoxX);
+            mBlackPromotionSelections.setY(promotionBoxY);
+        }
+    }
+    void finishPromotion() {
+        if (mPromotedPieceView != null) {
+            if (mBoard.isPromoting()) {
+                rollbackLastMove();
+            } else {
+                // Update evaluation when not rolling back
+                finishMove();
+            }
+        }
+        mPromotedPieceView = null;
+        invalidate();
+    }
+    public void movePiece(Board.Move move) {
+        if (mPieceViewMap.containsKey(move.getOldPosition())) {
+            setSelectedPiece(move.getOldPosition(), false);
+            placeSelectedPiece(move.getNewPosition());
+            if (mBoard.isPromoting()) {
+                promoteSelectedPiece(move.getPromotionTo());
+            }
         }
     }
     public void setLastMoveEvaluation(int state) {
@@ -337,152 +411,11 @@ public class BoardView extends FrameLayout implements BoardController {
                 mLastMoveEvalView.setImageResource(0);
         }
     }
-    public Board getBoard() {
-        return mBoard;
-    }
-    // Below is the implementation of BoardController.
     @Override
-    public boolean setSelectedPiece(PieceView pieceView, boolean preserved) {
-        // Clear promotion when there is new piece selection
-        finishPromotion();
-        if (mSelectedPieceView == null) {
-            // If there is no currently selected piece then just select it
-            mSelectedPieceView = pieceView;
-        } else if (!preserved) {
-            // If not need to preserve current selected piece
-            // then set the Z of old selection to normal and select new piece.
-            mSelectedPieceView.setZ(2);
-            mSelectedPieceView = pieceView;
-        }
-        // TODO: Implement Setup Board separately
-        if (mIsSetupBoard && pieceView.getPiece().getPosition() >= 64) {
-            // if it is a setup board and selected piece is the "extra" piece, then just select it.
-            if (mSelectedPieceView != null) {
-                mSelectedPieceView = pieceView;
-            }
-            // If it is a "extra" piece, then create a new copy
-            mExtraPieceViews.remove(mSelectedPieceView);
-            Piece piece = mSelectedPieceView.getPiece().copy();
-            PieceView newPieceView = new PieceView(mContext, piece, this);
-            Log.d(TAG, "CREATED");
-            this.addView(newPieceView);
-            mExtraPieceViews.add(newPieceView);
-        }
-        // Set Z to 3 so that it is above all other pieces.
-        mSelectedPieceView.setZ(3);
-        invalidate();
-        // Return if the select action is successful.
-        return mSelectedPieceView == pieceView;
-    }
-
-    @Override
-    public void placeSelectedPiece(int position) {
-        // TODO: Consider doing BoardView update based on Board object in separate function (e.g onDraw).
-        // TODO: Implement Setup Board separately
-        // If there is a selected piece then carry out action.
-        if (mSelectedPieceView != null) {
-            // Save the old position.
-            int oldPosition = mSelectedPieceView.getPiece().getPosition();
-            // Try moving piece to new position.
-            boolean success = mSelectedPieceView.getPiece().moveTo(position);
-            // Animate move the new position.
-//            mSelectedPieceView.animateMove();
-            // Set Z back to 2 so that it is on the same level of other pieces.
-            mSelectedPieceView.setZ(2);
-            // If the new position is different from old position, i.e user clicks the other other cell.
-            if (oldPosition != position) {
-                // If the move is successful/legal
-                if (success) {
-                    // Check if move is promotion
-                    boolean isPromotion = mSelectedPieceView.getPiece().isPromoting();
-                    if (isPromotion) {
-                        mPromotedPieceView = mSelectedPieceView;
-                    }
-                    // If clicked cell contains a piece, then remove it, i.e capturing piece.
-                    if (mPieceViewMap.containsKey(position)) {
-                        PieceView pieceView = mPieceViewMap.get(position);
-                        mPieceViewMap.remove(position);
-                        this.removeView(pieceView);
-                    }
-                    // Update piece's view position
-                    mPieceViewMap.remove(oldPosition);
-                    mPieceViewMap.put(position, mSelectedPieceView);
-                    // Update last move evaluation
-                    int iconWidth = mLastMoveEvalView.getWidth();
-                    int iconHeight = mLastMoveEvalView.getHeight();
-                    float iconX = position % 8 * mSelectedPieceView.getWidth() + mSelectedPieceView.getWidth() - (float)iconWidth / 2;
-                    float iconY = position / 8 * mSelectedPieceView.getHeight() - (float)iconHeight / 2;
-                    mLastMoveEvalView.setX(iconX);
-                    mLastMoveEvalView.setY(iconY);
-                    // TODO: add functionality to evaluation view
-                    if (!isPromotion) {
-                        // Update evaluation
-                        updateEvaluation();
-                    } else {
-                        mLastMoveEvalView.setImageResource(0);
-                    }
-                } else {
-                    if (mIsSetupBoard) {
-                        // If it is a setup board then remove a piece when it go out side the board/failed move.
-                        mPieceViewMap.remove(oldPosition);
-                        this.removeView(mSelectedPieceView);
-                    }
-                }
-                // Deselect the piece.
-                mSelectedPieceView = null;
-            } else {
-                // Move selected piece back to center of its cell
-                mSelectedPieceView.animateMove();
-            }
-        }
-        // Deselect the cell
-        setSelectedCell(-1);
-        invalidate();
-    }
-
-    @Override
-    public void setSelectedCell(int pos) {
-        if (mSelectedCellView != null) {
-            mSelectedCellView.setZ(0);
-        }
-        if (pos >= 0 && pos < 64) {
-            mSelectedCellView = mCellViews[pos];
-            mSelectedCellView.setZ(1);
-        } else {
-            mSelectedCellView = null;
-        }
-        invalidate();
-    }
-    public void showPromotionBox() {
-        int promotionBoxX = (int)mPromotedPieceView.getPiece().getPosition() % 8 * (getWidth() / 8);
-        int promotionBoxY = (int)mPromotedPieceView.getPiece().getPosition() / 8 * (getHeight() / 8);
-        promotionBoxY = Math.min(promotionBoxY, getHeight() / 2);
-        if (mPromotedPieceView.getPiece().isWhite()) {
-            mWhitePromotionSelections.setVisibility(VISIBLE);
-            mWhitePromotionSelections.setX(promotionBoxX);
-            mWhitePromotionSelections.setY(promotionBoxY);
-        } else {
-            mBlackPromotionSelections.setVisibility(VISIBLE);
-            mBlackPromotionSelections.setX(promotionBoxX);
-            mBlackPromotionSelections.setY(promotionBoxY);
-        }
-    }
-    public void finishPromotion() {
-        if (mPromotedPieceView != null) {
-            if (mBoard.isPromoting()) {
-                rollbackLastMove();
-            } else {
-                // Update evaluation when not rolling back
-                updateEvaluation();
-            }
-        }
-        mPromotedPieceView = null;
-        invalidate();
-    }
     public void rollbackLastMove() {
         // Reset all selection
         mPromotedPieceView = null;
-        mSelectedPieceView = null;
+        mSelectedPosition = -1;
         mSelectedCellView = null;
         // Try roll back last move
         Board.Move move = mBoard.rollbackLastMove();
@@ -491,7 +424,7 @@ public class BoardView extends FrameLayout implements BoardController {
             // If the move is promotion, then revert it.
             if (move.getPromotionFrom() != null) {
                 if (mPieceViewMap.containsKey(move.getNewPosition())) {
-                    mPieceViewMap.get(move.getNewPosition()).setPiece(move.getPromotionFrom());
+                    mPieceViewMap.get(move.getNewPosition()).setPiece(mBoard.getPiece(move.getOldPosition()));
                 }
             }
             // Update piece view map
@@ -516,11 +449,130 @@ public class BoardView extends FrameLayout implements BoardController {
             }
             // Update evaluation
             updateEvaluation();
+            setLastMoveEvaluation(0);
 
             invalidate();
         }
     }
+    public Board getBoard() {
+        return mBoard;
+    }
+    public void toggleDisabled() {
+        mDisabled = !mDisabled;
+        invalidate();
+    }
+    public void toggleHidden() {
+        mIsHidden = !mIsHidden;
+        invalidate();
+    }
+    public void toggleEvaluation() {
+        mIsEvaluated = !mIsEvaluated;
+        invalidate();
+    }
+    // Below is the implementation of BoardController.
+    @Override
+    public boolean setSelectedPiece(int position, boolean preserved) {
+        PieceView pieceView = mPieceViewMap.get(position);
+        // Clear promotion when there is new piece selection
+        finishPromotion();
+        if (mSelectedPosition == -1) {
+            // If there is no currently selected piece then just select it
+            mSelectedPosition = position;
+        } else if (!preserved) {
+            // If not need to preserve current selected piece
+            // then set the Z of old selection to normal and select new piece.
+            if (mPieceViewMap.containsKey(mSelectedPosition))
+                mPieceViewMap.get(mSelectedPosition).setZ(2);
+            mSelectedPosition = position;
+        }
+        if (mPieceViewMap.containsKey(mSelectedPosition)) {
+            // Set Z to 3 so that it is above all other pieces.
+            mPieceViewMap.get(mSelectedPosition).setZ(3);
+        }
+        invalidate();
+        // Return if the select action is successful.
+        return mSelectedPosition == position;
+    }
+    @Override
+    public void placeSelectedPiece(int position) {
+        // TODO: Consider doing BoardView update based on Board object in separate function (e.g onDraw).
+        // TODO: Implement Setup Board separately
+        // If there is a selected piece then carry out action.
+        if (mSelectedPosition != -1) {
+            // Save the old position.
+            int oldPosition = mSelectedPosition;
+            // Try moving piece to new position.
+            boolean success = false;
+            if (mPieceViewMap.containsKey(mSelectedPosition)) {
+                // Set Z back to 2 so that it is on the same level of other pieces.
+                mPieceViewMap.get(mSelectedPosition).setZ(2);
+                success = mPieceViewMap.get(mSelectedPosition).getPiece().moveTo(position);
+            }
+            // If the new position is different from old position, i.e user clicks the other other cell.
+            if (oldPosition != position) {
+                // If the move is successful/legal
+                if (success) {
+                    PieceView selectedPieceView = mPieceViewMap.get(mSelectedPosition);
+                    // Check if move is promotion
+                    boolean isPromotion = selectedPieceView.getPiece().isPromoting();
+                    if (isPromotion) {
+                        mPromotedPieceView = selectedPieceView;
+                    }
+                    // If clicked cell contains a piece, then remove it, i.e capturing piece.
+                    if (mPieceViewMap.containsKey(position)) {
+                        PieceView pieceView = mPieceViewMap.get(position);
+                        mPieceViewMap.remove(position);
+                        this.removeView(pieceView);
+                    }
+                    // Update piece's view position
+                    mPieceViewMap.remove(oldPosition);
+                    mPieceViewMap.put(position, selectedPieceView);
+                    // Update last move evaluation
+                    int iconWidth = mLastMoveEvalView.getWidth();
+                    int iconHeight = mLastMoveEvalView.getHeight();
+                    float iconX = position % 8 * mCellViews[0].getWidth() + mCellViews[0].getWidth() - (float)iconWidth / 2;
+                    float iconY = position / 8 * mCellViews[0].getHeight() - (float)iconHeight / 2;
+                    mLastMoveEvalView.setX(iconX);
+                    mLastMoveEvalView.setY(iconY);
+                    // TODO: add functionality to evaluation view
+                    if (!isPromotion) {
+                        // Update evaluation
+                        finishMove();
+                    } else {
+                        mLastMoveEvalView.setImageResource(0);
+                    }
+                } else {
+                    // Return null if the move is not successful
+                    if (mFinishedMoveListener != null)
+                        mFinishedMoveListener.onFinishMove(null);
+                }
+                // Deselect the piece.
+                mSelectedPosition = -1;
+            } else {
+                if (mPieceViewMap.containsKey(mSelectedPosition)) {
+                    // Move selected piece back to center of its cell
+                    mPieceViewMap.get(mSelectedPosition).animateMove();
+                }
 
+            }
+        }
+        // Deselect the cell
+        setSelectedCell(-1);
+        invalidate();
+    }
+    @Override
+    public void setSelectedCell(int pos) {
+        if (mSelectedCellView != null) {
+            mSelectedCellView.setZ(0);
+        }
+        if (pos >= 0 && pos < 64) {
+            mSelectedCellView = mCellViews[pos];
+            mSelectedCellView.setZ(1);
+        } else {
+            mSelectedCellView = null;
+        }
+        invalidate();
+    }
     @Override
     public void promoteSelectedPiece(String pieceType) {
         if (mPromotedPieceView != null) {

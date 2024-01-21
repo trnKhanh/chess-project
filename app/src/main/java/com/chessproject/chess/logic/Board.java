@@ -1,7 +1,6 @@
 package com.chessproject.chess.logic;
 
 import android.util.Log;
-import android.util.Pair;
 
 import java.util.ArrayList;
 
@@ -9,23 +8,25 @@ public class Board {
     public static class Move {
         private final int oldPosition;
         private final int newPosition;
-        private Piece promotionFrom;
+        private String promotionFrom;
+        private String promotionTo;
         private Piece capturedPiece;
         public int getOldPosition() {
             return oldPosition;
         }
-
         public int getNewPosition() {
             return newPosition;
         }
-
-        public Piece getPromotionFrom() {
+        public String getPromotionFrom() {
             return promotionFrom;
         }
-        public void setPromotionFrom(Piece piece) {
-            promotionFrom = piece;
+        public String getPromotionTo() {
+            return promotionTo;
         }
-
+        public void setPromotion(String from, String to) {
+            promotionFrom = from;
+            promotionTo = to;
+        }
         public Piece getCapturedPiece() {
             return capturedPiece;
         }
@@ -36,11 +37,18 @@ public class Board {
             this.oldPosition = oldPosition;
             this.newPosition = newPosition;
         }
-        public Move(int oldPosition, int newPosition, Piece promotionFrom, Piece capturedPiece) {
+        public Move(int oldPosition, int newPosition, String promotionFrom, String promotionTo, Piece capturedPiece) {
             this.oldPosition = oldPosition;
             this.newPosition = newPosition;
             this.promotionFrom = promotionFrom;
+            this.promotionTo = promotionTo;
             this.capturedPiece = capturedPiece;
+        }
+        public boolean equal(Move move) {
+            return this.oldPosition == move.oldPosition &&
+                    this.newPosition == move.newPosition &&
+                    this.promotionFrom.compareTo(move.promotionFrom) == 0 &&
+                    this.promotionTo.compareTo(move.promotionTo) == 0;
         }
     }
     // TODO: find ways to record history
@@ -148,7 +156,7 @@ public class Board {
         if (oldPiece == null) {
             return null;
         }
-        getLastMove().setPromotionFrom(mPieces[position]);
+        String from = mPieces[position].getSymbol();
         // TODO: set promotion to correct pieces
         switch (pieceType) {
             case "q":
@@ -162,6 +170,8 @@ public class Board {
                 mPieces[position] = new Knight(oldPiece.isWhite(), position, this);
                 break;
         }
+        getLastMove().setPromotion(from, pieceType);
+
         Log.d(TAG, String.valueOf(mPieces[position].isWhite()));
         return mPieces[position];
     }
@@ -179,8 +189,27 @@ public class Board {
         }
         // Update pieces
         // If there is promotion then reverse it
-        if (move.getPromotionFrom() != null)
-            mPieces[move.getNewPosition()] = move.getPromotionFrom();
+        if (move.getPromotionFrom() != null) {
+            // TODO: Finish logic here
+            switch (move.getPromotionFrom()) {
+                case "p":
+                    // mPieces[move.getNewPosition()] = new Pawn();
+                case "q":
+                    break;
+                case "r":
+                    break;
+                case "b":
+                    break;
+                case "n":
+                    mPieces[move.getNewPosition()] = new Knight(
+                            mPieces[move.getNewPosition()].isWhite(),
+                            move.getNewPosition(),
+                            this);
+                    break;
+            }
+
+        }
+
         // Reverse the move
         mPieces[move.getOldPosition()] = mPieces[move.getNewPosition()];
         // If the move captured a piece, then bring it back

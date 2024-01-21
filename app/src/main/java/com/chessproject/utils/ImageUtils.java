@@ -1,4 +1,4 @@
-package com.chessproject;
+package com.chessproject.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,7 +9,7 @@ import androidx.camera.core.ImageProxy;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-public class Utils {
+public class ImageUtils {
     static public byte[] getBytesFromBitmap(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
@@ -24,8 +24,6 @@ public class Utils {
 
         return rotateBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length), 90);
     }
-
-
     static public Bitmap rotateBitmap(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);

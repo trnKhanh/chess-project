@@ -1,4 +1,4 @@
-package com.chessproject;
+package com.chessproject.utils;
 
 public class ChessUtils {
     public static int getPosition(String positionString) {

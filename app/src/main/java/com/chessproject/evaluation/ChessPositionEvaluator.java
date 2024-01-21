@@ -1,19 +1,15 @@
 package com.chessproject.evaluation;
 
-import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
-import android.util.Patterns;
 
-import com.chessproject.ChessUtils;
-import com.chessproject.detection.ChessPositionDetector;
+import com.chessproject.utils.ChessUtils;
 import com.chessproject.evaluation.services.StockfishOnlineService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

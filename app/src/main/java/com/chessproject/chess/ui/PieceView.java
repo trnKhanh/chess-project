@@ -84,7 +84,7 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
                 // Try set selected piece to this if there is no current selected piece.
-                return mBoardController.setSelectedPiece(this, true);
+                return mBoardController.setSelectedPiece(mPiece.getPosition(), true);
             case MotionEvent.ACTION_MOVE:
                 // Scale up the piece
                 setScaleX(1.5f);
