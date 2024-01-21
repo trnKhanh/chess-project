@@ -45,6 +45,7 @@ public class BlindPuzzleFragment extends Fragment {
                 })
                 .create();
         startPuzzle();
+        binding.chessboard.toggleDisabled();
         binding.chessboard.setFinishedMoveListener(new BoardView.FinishedMoveListener() {
             @Override
             public void onFinishMove(Board.Move move) {
@@ -72,6 +73,7 @@ public class BlindPuzzleFragment extends Fragment {
             public void onClick(View v) {
                 binding.readyButton.setVisibility(View.GONE);
                 binding.chessboard.toggleHidden();
+                binding.chessboard.toggleDisabled();
             }
         });
         binding.retryButton.setVisibility(View.GONE);

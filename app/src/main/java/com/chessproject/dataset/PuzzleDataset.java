@@ -12,6 +12,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
+
+import kotlin.random.AbstractPlatformRandom;
 
 public class PuzzleDataset {
     public static class Puzzle {
@@ -46,7 +49,7 @@ public class PuzzleDataset {
         }
     }
     ArrayList<Puzzle> mPuzzles;
-    int curPuzzleId = 0;
+    Random random = new Random();
     static PuzzleDataset mInstance;
     PuzzleDataset(Context context) {
         // TODO: Read dataset here
@@ -82,9 +85,10 @@ public class PuzzleDataset {
     public Puzzle nextPuzzle() {
         if (mPuzzles.isEmpty())
             return null;
-        int id = curPuzzleId;
-        curPuzzleId++;
-        curPuzzleId %= mPuzzles.size();
+        int id = random.nextInt();
+        id %= mPuzzles.size();
+        if (id < 0)
+            id += mPuzzles.size();
         return mPuzzles.get(id);
     }
 }
