@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
     final static String TAG = "MainActivity";
     private ActivityMainBinding binding;
     NavController navController;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_camera, R.id.navigation_notifications)
+                R.id.navigation_home, R.id.navigation_camera, R.id.navigation_games)
                 .build();
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
@@ -44,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
+        if(navController.getCurrentDestination().getId() == R.id.navigation_result){
+            return navController.popBackStack(R.id.navigation_camera, false);
+        }
         return navController.navigateUp();
     }
 
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 destinationId = R.id.navigation_home;
                 break;
             case "NotificationFragment":
-                destinationId = R.id.navigation_notifications;
+                destinationId = R.id.navigation_games;
                 break;
         }
         if (destinationId != 0) {

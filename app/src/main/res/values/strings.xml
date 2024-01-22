@@ -2,7 +2,9 @@
     <string name="app_name">ChessProject</string>
     <string name="title_home">Home</string>
     <string name="title_camera">Camera</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_games">Games</string>
+    <string name="title_prepare_image">Prepare Image</string>
+    <string name="title_result">Detection Result</string>
     <string name="retry">Retry</string>
     <string name="next">Next</string>
     <string name="evaluation_question">Which side is winning?</string>
@@ -15,4 +17,7 @@
     <string name="blind_puzzle_label">Blind Puzzle</string>
     <string name="evaluation_game_label">Evaluation Game</string>
     <string name="puzzle_label">Puzzle</string>
+    <string name="title_games_guess_the_eval">Guess The Evaluation</string>
+    <string name="title_puzzle">Puzzle</string>
+    <string name="title_blind_puzzle">Blind Puzzle</string>
 </resources>

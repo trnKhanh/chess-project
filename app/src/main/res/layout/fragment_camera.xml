@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.camera.CameraFragment">
+    tools:context=".ui.detector.CameraFragment">
 
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
@@ -29,44 +29,5 @@
             android:src="@drawable/camera_capture_icon"
             android:onClick="onCaptureButtonClick" />
     </androidx.cardview.widget.CardView>
-    <Button
-        android:id="@+id/btnGenerate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:translationY="-100dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="Generate"
-        android:visibility="gone"
-        android:layout_gravity="bottom|center"
-        android:onClick="onCaptureButtonClick" />
-    <ImageView
-        android:id="@+id/capturedImageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:id="@+id/reCapture"
-            android:layout_width="40dp"
-            android:layout_height="25dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/baseline_arrow_back_24"
-            android:visibility="gone"
-            android:onClick="onBackButtonClick" />
-        <View
-            android:layout_width="320dp"
-            android:layout_height="match_parent"/>
-        <ImageView
-            android:padding="10dp"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:id="@+id/btnOpenGallery"
-            android:src="@drawable/gallery_icon"
-            android:onClick="onGalleryOpenClick"/>
-    </LinearLayout>
 </FrameLayout>
 
