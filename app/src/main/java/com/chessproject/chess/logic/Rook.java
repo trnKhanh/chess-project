@@ -22,7 +22,6 @@ public class Rook extends Piece{
         return mWhite ? R.drawable.white_rook : R.drawable.black_rook;
     }
     public String getSymbol(){
-        if (isWhite()) return "R";
         return "r";
     }
 

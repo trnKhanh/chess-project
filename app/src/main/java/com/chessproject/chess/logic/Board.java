@@ -65,7 +65,6 @@ public class Board {
         // TODO: remove this when finishing all logics
         String[] fields = fen.split(" ");
         String piecePlaces = fields[0];
-
         int squareIndex = 0;
         // piecePlaces
         int indexSquare = 0;
@@ -186,18 +185,20 @@ public class Board {
         // TODO: set promotion to correct pieces
         switch (pieceType) {
             case "q":
-                mPieces[position] = new Knight(!oldPiece.isWhite(), position, this);
+                mPieces[position] = new Queen(oldPiece.isWhite(), position, this);
                 break;
             case "r":
+                mPieces[position] = new Rook(oldPiece.isWhite(), position, this);
                 break;
             case "b":
+                mPieces[position] = new Bishop(oldPiece.isWhite(), position, this);
                 break;
             case "n":
                 mPieces[position] = new Knight(oldPiece.isWhite(), position, this);
                 break;
         }
         getLastMove().setPromotion(from, pieceType);
-
+        Log.d(TAG, from);
         return mPieces[position];
     }
     public Move rollbackLastMove() {
@@ -215,15 +216,31 @@ public class Board {
         // Update pieces
         // If there is promotion then reverse it
         if (move.getPromotionFrom() != null) {
-            // TODO: Finish logic here
+            Log.d(TAG, String.valueOf(move.getPromotionFrom()));
             switch (move.getPromotionFrom()) {
                 case "p":
-                    // mPieces[move.getNewPosition()] = new Pawn();
+                    mPieces[move.getNewPosition()] = new Pawn(
+                            mPieces[move.getNewPosition()].isWhite(),
+                            move.getNewPosition(),
+                            this);
+                    break;
                 case "q":
+                    mPieces[move.getNewPosition()] = new Queen(
+                            mPieces[move.getNewPosition()].isWhite(),
+                            move.getNewPosition(),
+                            this);
                     break;
                 case "r":
+                    mPieces[move.getNewPosition()] = new Rook(
+                            mPieces[move.getNewPosition()].isWhite(),
+                            move.getNewPosition(),
+                            this);
                     break;
                 case "b":
+                    mPieces[move.getNewPosition()] = new Bishop(
+                            mPieces[move.getNewPosition()].isWhite(),
+                            move.getNewPosition(),
+                            this);
                     break;
                 case "n":
                     mPieces[move.getNewPosition()] = new Knight(
@@ -232,7 +249,7 @@ public class Board {
                             this);
                     break;
             }
-
+            Log.d(TAG, String.valueOf(mPieces[move.getNewPosition()].getClass()));
         }
 
         // Reverse the move
@@ -241,6 +258,8 @@ public class Board {
         mPieces[move.getNewPosition()] = move.getCapturedPiece();
         // Update position of piece
         mPieces[move.getOldPosition()].setPosition(move.getOldPosition());
+        Log.d(TAG, String.valueOf(move.getPromotionFrom()));
+        Log.d(TAG, String.valueOf(move.getPromotionTo()));
         mIsWhiteTurn = !mIsWhiteTurn;
         return move;
     }

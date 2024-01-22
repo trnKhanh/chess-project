@@ -110,6 +110,7 @@ public class BlindPuzzleFragment extends Fragment {
 
         binding.chessboard.setFen(mCurPuzzle.getFen());
         binding.chessboard.setLastMoveEvaluation(0,-1);
+        binding.chessboard.setPerspective(mCurPuzzle.isWhiteToMove());
     }
     void startMove() {
         // Move current move and go to next move

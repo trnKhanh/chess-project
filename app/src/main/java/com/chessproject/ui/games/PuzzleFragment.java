@@ -97,6 +97,7 @@ public class PuzzleFragment extends Fragment {
         mCurPuzzle = PuzzleDataset.getInstance(getContext()).nextPuzzle();
         binding.chessboard.setFen(mCurPuzzle.getFen());
         binding.chessboard.setLastMoveEvaluation(0,-1);
+        binding.chessboard.setPerspective(mCurPuzzle.isWhiteToMove());
         if (mCurPuzzle.isWhiteToMove()) {
             binding.sideToMove.setText(R.string.you_are_white);
         } else {
@@ -109,6 +110,8 @@ public class PuzzleFragment extends Fragment {
                 // Move current move and go to next move
                 Board.Move move = mCurPuzzle.getCurrentMove();
                 mCurPuzzle.nextMove();
+                Log.d(TAG, String.valueOf(move.getOldPosition()));
+                Log.d(TAG, String.valueOf(move.getNewPosition()));
                 binding.chessboard.movePiece(move);
             }
         }, 100);

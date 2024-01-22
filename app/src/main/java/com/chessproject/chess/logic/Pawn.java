@@ -23,7 +23,6 @@ public class Pawn extends Piece{
         return mWhite ? R.drawable.white_pawn : R.drawable.black_pawn;
     }
     public String getSymbol(){
-        if (isWhite()) return "P";
         return "p";
     }
 

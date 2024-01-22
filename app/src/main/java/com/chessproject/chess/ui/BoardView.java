@@ -337,6 +337,17 @@ public class BoardView extends FrameLayout implements BoardController {
     public void setFen(String fen) {
         initBoard(fen);
     }
+    public void setPerspective(boolean white) {
+        for (PieceView pieceView: mPieceViewMap.values()) {
+            pieceView.setPerspective(white);
+        }
+        if (white) {
+            setRotation(0);
+        } else {
+            setRotation(180);
+        }
+
+    }
     public void setFinishedMoveListener(FinishedMoveListener finishedMoveListener) {
         mFinishedMoveListener = finishedMoveListener;
     }

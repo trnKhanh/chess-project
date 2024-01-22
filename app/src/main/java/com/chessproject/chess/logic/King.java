@@ -22,7 +22,6 @@ public class King extends Piece{
         return mWhite ? R.drawable.white_king : R.drawable.black_king;
     }
     public String getSymbol(){
-        if (isWhite()) return "K";
         return "k";
     }
 

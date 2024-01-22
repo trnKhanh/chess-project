@@ -22,7 +22,6 @@ public class Bishop extends Piece{
         return mWhite ? R.drawable.white_bishop : R.drawable.black_bishop;
     }
     public String getSymbol(){
-        if (isWhite()) return "B";
         return "b";
     }
 

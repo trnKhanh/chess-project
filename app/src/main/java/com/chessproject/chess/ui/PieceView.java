@@ -115,4 +115,12 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
 
         return false;
     }
+
+    public void setPerspective(boolean white) {
+        if (!white) {
+            setRotation(180);
+        } else {
+            setRotation(0);
+        }
+    }
 }
