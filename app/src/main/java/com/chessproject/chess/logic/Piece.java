@@ -12,6 +12,7 @@ public abstract class Piece implements Cloneable{
         mPosition = position;
         mBoard = board;
     }
+    public abstract String getSymbol();
     public abstract Piece copy();
     public abstract int getImageResource();
     public abstract ArrayList<Integer> getLegalMoves();
@@ -37,6 +38,8 @@ public abstract class Piece implements Cloneable{
         return false;
     }
     public Piece promote(String pieceType) {
+        if (pieceType == null)
+            return null;
         mIsPromoting = false;
         mBoard.finishPromote();
         return mBoard.promote(mPosition, pieceType);

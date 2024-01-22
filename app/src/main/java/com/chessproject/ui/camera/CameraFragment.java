@@ -1,6 +1,6 @@
 package com.chessproject.ui.camera;
 
-import static com.chessproject.Utils.imageToBitmap;
+import static com.chessproject.utils.ImageUtils.imageToBitmap;
 
 import android.Manifest;
 import android.app.Activity;
@@ -11,7 +11,6 @@ import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

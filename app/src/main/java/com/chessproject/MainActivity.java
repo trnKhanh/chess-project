@@ -13,16 +13,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.chessproject.chess.ui.BoardView;
 import com.chessproject.databinding.ActivityMainBinding;
-import com.chessproject.detection.ChessPositionDetector;
-import com.chessproject.evaluation.ChessPositionEvaluator;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.concurrent.ExecutorService;
-
 public class MainActivity extends AppCompatActivity {
-    final static String TAG = "Main activity";
+    final static String TAG = "MainActivity";
     private ActivityMainBinding binding;
     NavController navController;
     @Override
@@ -45,9 +40,9 @@ public class MainActivity extends AppCompatActivity {
             String fragmentToShow = getIntent().getStringExtra("FRAGMENT_TO_SHOW");
             switchFragment(navController, fragmentToShow);
         }
-
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
     }
 
     @Override

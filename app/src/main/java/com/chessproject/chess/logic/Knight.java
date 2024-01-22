@@ -15,6 +15,11 @@ public class Knight extends Piece{
     }
 
     @Override
+    public String getSymbol() {
+        return "k";
+    }
+
+    @Override
     public Piece copy() {
         Piece clone = new Knight(mWhite, mPosition, mBoard);
         return clone;
