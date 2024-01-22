@@ -1,10 +1,7 @@
 package com.chessproject.chess.logic;
 
-import android.util.Log;
-
 import com.chessproject.R;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Knight extends Piece{
@@ -12,11 +9,6 @@ public class Knight extends Piece{
 
     public Knight(boolean white, int position, Board board) {
         super(white, position, board);
-    }
-
-    @Override
-    public String getSymbol() {
-        return "k";
     }
 
     @Override
@@ -29,10 +21,15 @@ public class Knight extends Piece{
     public int getImageResource() {
         return mWhite ? R.drawable.white_knight : R.drawable.black_knight;
     }
+    public String getSymbol(){
+        if (isWhite()) return "N";
+        return "n";
+    }
 
     @Override
     public ArrayList<Integer> getLegalMoves() {
         ArrayList<Integer> legalMoves = new ArrayList<>();
+        if (mBoard.isWhiteTurn() != isWhite()) return legalMoves;
         int colId = mPosition % 8;
         int rowId = mPosition / 8;
 
@@ -42,7 +39,12 @@ public class Knight extends Piece{
                 for (int j = -1; j <= 1; j += 2) {
                     int x = colId + offsetCol * i;
                     int y = rowId + offsetRow * j;
+                    Piece piece = mBoard.getPiece(x + y * 8);
+                    if (piece != null && mBoard.getPiece(y * 8 + x).isWhite() == isWhite())
+                        continue;
+
                     if (x >= 0 && y >= 0 && x < 8 && y < 8) {
+
                         legalMoves.add(y * 8 + x);
                     }
                 }

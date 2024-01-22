@@ -56,12 +56,34 @@ public class Board {
     ArrayList<Move> mMovesHistory;
     Piece[] mPieces = new Piece[64];
     int mPromotionCount = 0;
+    private boolean mIsWhiteTurn = true;
     public Board(String fen) {
         mMovesHistory = new ArrayList<>();
         // TODO: remove this when finishing all logics
-        mPieces[15] = new Knight(true, 15, this);
-        mPieces[30] = new Knight(false, 30, this);
+        fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 w";
+        String[] fields = fen.split(" ");
+        String piecePlaces = fields[0];
+
+        int squareIndex = 0;
+        // piecePlaces
+        int indexSquare = 0;
+        for (char c : piecePlaces.toCharArray()) {
+            if (c == '/') continue;
+            if (Character.isDigit(c)){
+                int emptySquares = Character.getNumericValue(c);
+                indexSquare += emptySquares;
+            }
+            else {
+                mPieces[indexSquare] = Piece.createPiece(indexSquare, c, this);
+                indexSquare++;
+            }
+        }
+        // white or black turn
+        String turnSide = fields[1];
+        mIsWhiteTurn = turnSide.equals("w");
+        // TODO: En Passant and castle
     }
+
 
     public ArrayList<Piece> getPieces() {
         ArrayList<Piece> pieces = new ArrayList<>();
@@ -119,7 +141,7 @@ public class Board {
         mPieces[newPosition] = piece;
         // Add move to moves history.
         mMovesHistory.add(move);
-
+        mIsWhiteTurn = !mIsWhiteTurn;
         return true;
     }
     public void printBoard() {
@@ -148,7 +170,7 @@ public class Board {
         return (int)(Math.random() * 3);
     }
     public boolean isWhiteTurn() {
-        return true;
+        return mIsWhiteTurn;
     }
 
     public Piece promote(int position, String pieceType) {
