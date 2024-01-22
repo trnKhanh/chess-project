@@ -3,6 +3,7 @@ package com.chessproject.ui.games;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.chessproject.MyApplication;
 import com.chessproject.R;
 import com.chessproject.chess.logic.Board;
 import com.chessproject.chess.ui.BoardView;
@@ -83,20 +85,33 @@ public class PuzzleFragment extends Fragment {
         binding.nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                binding.retryButton.setVisibility(View.GONE);
-                binding.chessboard.setDisabled(false);
                 startPuzzle();
             }
         });
         return binding.getRoot();
     }
     void startPuzzle() {
+        binding.retryButton.setVisibility(View.GONE);
+        binding.chessboard.setDisabled(false);
+
         mCurPuzzle = PuzzleDataset.getInstance(getContext()).nextPuzzle();
         binding.chessboard.setFen(mCurPuzzle.getFen());
         binding.chessboard.setLastMoveEvaluation(0,-1);
-        // Move current move and go to next move
-        Board.Move move = mCurPuzzle.getCurrentMove();
-        mCurPuzzle.nextMove();
-        binding.chessboard.movePiece(move);
+        if (mCurPuzzle.isWhiteToMove()) {
+            binding.sideToMove.setText(R.string.you_are_white);
+        } else {
+            binding.sideToMove.setText(R.string.you_are_black);
+        }
+        Handler mainHandler = ((MyApplication)(getActivity().getApplication())).getMainHandler();
+        mainHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Move current move and go to next move
+                Board.Move move = mCurPuzzle.getCurrentMove();
+                mCurPuzzle.nextMove();
+                binding.chessboard.movePiece(move);
+            }
+        }, 100);
+
     }
 }

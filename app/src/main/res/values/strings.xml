@@ -20,4 +20,6 @@
     <string name="title_games_guess_the_eval">Guess The Evaluation</string>
     <string name="title_puzzle">Puzzle</string>
     <string name="title_blind_puzzle">Blind Puzzle</string>
+    <string name="you_are_white">You Are White</string>
+    <string name="you_are_black">You Are Black</string>
 </resources>

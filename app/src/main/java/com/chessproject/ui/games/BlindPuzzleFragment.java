@@ -33,9 +33,6 @@ public class BlindPuzzleFragment extends Fragment {
                 .setPositiveButton(R.string.next, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        binding.chessboard.setHidden(false);
-                        binding.chessboard.setDisabled(true);
-                        binding.readyButton.setVisibility(View.VISIBLE);
                         startPuzzle();
                         dialog.dismiss();
                     }
@@ -94,16 +91,22 @@ public class BlindPuzzleFragment extends Fragment {
         binding.nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                binding.chessboard.setHidden(false);
-                binding.chessboard.setDisabled(true);
-                binding.readyButton.setVisibility(View.VISIBLE);
                 startPuzzle();
             }
         });
         return binding.getRoot();
     }
     void startPuzzle() {
+        binding.chessboard.setHidden(false);
+        binding.chessboard.setDisabled(true);
+        binding.readyButton.setVisibility(View.VISIBLE);
+
         mCurPuzzle = PuzzleDataset.getInstance(getContext()).nextPuzzle();
+        if (mCurPuzzle.isWhiteToMove()) {
+            binding.sideToMove.setText(R.string.you_are_white);
+        } else {
+            binding.sideToMove.setText(R.string.you_are_black);
+        }
 
         binding.chessboard.setFen(mCurPuzzle.getFen());
         binding.chessboard.setLastMoveEvaluation(0,-1);
