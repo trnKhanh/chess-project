@@ -7,40 +7,90 @@
     tools:context=".ui.games.BlindPuzzleFragment"
     android:orientation="vertical"
     android:clipChildren="false">
-    <com.chessproject.chess.ui.BoardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:id="@+id/chessboard"
-        android:layout_margin="20dp"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:id="@+id/side_to_move"
-        android:textSize="14pt"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/ready"
-        android:id="@+id/ready_button"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center">
-        <Button
+        <View
+            android:layout_width="8pt"
+            android:layout_height="8pt"
+            android:background="@color/black"
+            android:layout_gravity="center"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/side_to_move_icon"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/side_to_move"
+            android:textColor="@color/gray_500"
+            android:textStyle="bold"
+            android:textSize="14pt"/>
+    </LinearLayout>
+    <com.chessproject.chess.ui.BoardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:id="@+id/chessboard"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="20dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/ready"
+            android:id="@+id/ready_button"
+            android:textAllCaps="false"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:textSize="10pt"
+            app:strokeColor="@color/white"
+            app:cornerRadius="3pt"
+            app:backgroundTint="@color/gray_600"
+            android:textColor="@color/white"
+            app:icon="@drawable/baseline_check_24"
+            android:gravity="center"
+            app:iconTint="@color/white"
+            />
+        <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/retry"
             android:id="@+id/retry_button"
-            android:layout_marginHorizontal="10dp"/>
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:textSize="10pt"
+            app:strokeColor="@color/white"
+            app:cornerRadius="3pt"
+            app:backgroundTint="@color/error_500"
+            android:textColor="@color/white"
+            app:icon="@drawable/baseline_360_24"
+            app:iconTint="@color/white"
+            android:textAllCaps="false"
+            android:layout_gravity="center"
+            />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/next"
-            android:id="@+id/next_button"/>
+            android:id="@+id/next_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:textSize="10pt"
+            app:strokeColor="@color/white"
+            app:cornerRadius="3pt"
+            app:backgroundTint="@color/success_500"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            app:icon="@drawable/baseline_skip_next_24"
+            app:iconTint="@color/white"
+            android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            />
     </LinearLayout>
 </LinearLayout>

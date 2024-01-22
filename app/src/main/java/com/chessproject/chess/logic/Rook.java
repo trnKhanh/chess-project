@@ -18,8 +18,11 @@ public class Rook extends Piece{
     }
 
     @Override
-    public int getImageResource() {
-        return mWhite ? R.drawable.white_rook : R.drawable.black_rook;
+    public int getImageResource(boolean whitePerspective) {
+        if (mWhite)
+            return whitePerspective ? R.drawable.white_rook : R.drawable.white_rook_reverse;
+        else
+            return whitePerspective ? R.drawable.black_rook : R.drawable.black_rook_reverse;
     }
     public String getSymbol(){
         return "r";

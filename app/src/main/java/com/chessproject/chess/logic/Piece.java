@@ -45,7 +45,7 @@ public abstract class Piece implements Cloneable{
     }
 
     public abstract Piece copy();
-    public abstract int getImageResource();
+    public abstract int getImageResource(boolean whitePerspective);
     public abstract ArrayList<Integer> getLegalMoves();
     public boolean canMove(){
         return isWhite() == mBoard.isWhiteTurn();

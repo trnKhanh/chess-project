@@ -57,6 +57,7 @@ public class BoardView extends FrameLayout implements BoardController {
     boolean mIsHidden = false;
     boolean mDisabled = false;
     boolean mIsEvaluated = false;
+    boolean mIsWhitePerspective = true;
     public interface FinishedMoveListener {
         void onFinishMove(Board.Move move);
     }
@@ -286,8 +287,10 @@ public class BoardView extends FrameLayout implements BoardController {
         for (PieceView pieceView: mPieceViewMap.values()) {
             if (mIsHidden)
                 pieceView.setVisibility(GONE);
-            else
+            else {
+                pieceView.setPerspective(mIsWhitePerspective);
                 pieceView.setVisibility(VISIBLE);
+            }
         }
         // TODO: Implement Setup Board separately
         if (mIsSetupBoard) {
@@ -329,15 +332,18 @@ public class BoardView extends FrameLayout implements BoardController {
             }
         }
         // Animate move of all PieceViews
-        for (PieceView pieceView: mPieceViewMap.values()) {
-            if (pieceView.getPiece().getPosition() != mSelectedPosition)
-                pieceView.animateMove();
+        if (!mIsHidden) {
+            for (PieceView pieceView : mPieceViewMap.values()) {
+                if (pieceView.getPiece().getPosition() != mSelectedPosition)
+                    pieceView.animateMove();
+            }
         }
     }
     public void setFen(String fen) {
         initBoard(fen);
     }
     public void setPerspective(boolean white) {
+        mIsWhitePerspective = white;
         for (PieceView pieceView: mPieceViewMap.values()) {
             pieceView.setPerspective(white);
         }
@@ -428,6 +434,10 @@ public class BoardView extends FrameLayout implements BoardController {
         int iconHeight = mLastMoveEvalView.getHeight();
         float iconX = position % 8 * mCellViews[0].getWidth() + mCellViews[0].getWidth() - (float)iconWidth / 2;
         float iconY = position / 8 * mCellViews[0].getHeight() - (float)iconHeight / 2;
+        if (getRotation() == 180) {
+            iconX -= mCellViews[0].getWidth();
+            iconY += mCellViews[0].getHeight();
+        }
         mLastMoveEvalView.setX(iconX);
         mLastMoveEvalView.setY(iconY);
         switch (state) {

@@ -18,8 +18,11 @@ public class Queen extends Piece{
     }
 
     @Override
-    public int getImageResource() {
-        return mWhite ? R.drawable.white_queen : R.drawable.black_queen;
+    public int getImageResource(boolean whitePerspective) {
+        if (mWhite)
+            return whitePerspective ? R.drawable.white_queen : R.drawable.white_queen_reverse;
+        else
+            return whitePerspective ? R.drawable.black_queen : R.drawable.black_queen_reverse;
     }
     public String getSymbol(){
         return "q";

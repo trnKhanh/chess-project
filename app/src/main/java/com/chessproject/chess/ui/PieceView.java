@@ -26,7 +26,7 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
     }
     public void setPiece(Piece piece) {
         mPiece = piece;
-        setImageResource(piece.getImageResource());
+        setImageResource(piece.getImageResource(mWhitePerspective));
     }
     public PieceView(Context context, Piece piece, BoardController boardController) {
         super(context);
@@ -117,10 +117,7 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
     }
 
     public void setPerspective(boolean white) {
-        if (!white) {
-            setRotation(180);
-        } else {
-            setRotation(0);
-        }
+        mWhitePerspective = white;
+        setImageResource(mPiece.getImageResource(white));
     }
 }

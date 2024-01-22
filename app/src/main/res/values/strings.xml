@@ -15,9 +15,9 @@
     <string name="cancle">Cancle</string>
     <string name="ready">Ready</string>
     <string name="blind_puzzle_label">Blind Puzzle</string>
-    <string name="evaluation_game_label">Evaluation Game</string>
+    <string name="evaluation_game_label">Who Is Wining?</string>
     <string name="puzzle_label">Puzzle</string>
-    <string name="title_games_guess_the_eval">Guess The Evaluation</string>
+    <string name="title_games_guess_the_eval">Who Is Wining?</string>
     <string name="title_puzzle">Puzzle</string>
     <string name="title_blind_puzzle">Blind Puzzle</string>
     <string name="you_are_white">You Are White</string>

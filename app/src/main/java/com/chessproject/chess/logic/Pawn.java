@@ -19,8 +19,11 @@ public class Pawn extends Piece{
     }
 
     @Override
-    public int getImageResource() {
-        return mWhite ? R.drawable.white_pawn : R.drawable.black_pawn;
+    public int getImageResource(boolean whitePerspective) {
+        if (mWhite)
+            return whitePerspective ? R.drawable.white_pawn : R.drawable.white_pawn_reverse;
+        else
+            return whitePerspective ? R.drawable.black_pawn : R.drawable.black_pawn_reverse;
     }
     public String getSymbol(){
         return "p";

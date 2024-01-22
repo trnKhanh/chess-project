@@ -2,6 +2,7 @@ package com.chessproject.ui.games;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -58,13 +59,21 @@ public class PuzzleFragment extends Fragment {
                 if (correctMove.equal(move)) {
                     // If user is correct
                     // then set last move evaluation to correct
-                    binding.chessboard.setLastMoveEvaluation(move.getNewPosition(), BoardView.CORRECT_MOVE);
+                    binding.chessboard.setLastMoveEvaluation(0,-1);
                     Board.Move nextMove = mCurPuzzle.nextMove();
                     if (nextMove == null) {
                         mFinishDialog.show();
                     } else {
-                        binding.chessboard.movePiece(nextMove);
-                        mCurPuzzle.nextMove();
+
+                        Handler mainHandler = ((MyApplication)(getActivity().getApplication())).getMainHandler();
+                        mainHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Move current move and go to next move
+                                binding.chessboard.movePiece(nextMove);
+                                mCurPuzzle.nextMove();
+                            }
+                        }, 100);
                     }
                 } else {
                     binding.chessboard.setLastMoveEvaluation(move.getNewPosition(), BoardView.WRONG_MOVE);
@@ -100,8 +109,10 @@ public class PuzzleFragment extends Fragment {
         binding.chessboard.setPerspective(mCurPuzzle.isWhiteToMove());
         if (mCurPuzzle.isWhiteToMove()) {
             binding.sideToMove.setText(R.string.you_are_white);
+            binding.sideToMoveIcon.setBackground(requireContext().getDrawable(R.drawable.white_side));
         } else {
             binding.sideToMove.setText(R.string.you_are_black);
+            binding.sideToMoveIcon.setBackground(requireContext().getDrawable(R.drawable.black_side));
         }
         Handler mainHandler = ((MyApplication)(getActivity().getApplication())).getMainHandler();
         mainHandler.postDelayed(new Runnable() {

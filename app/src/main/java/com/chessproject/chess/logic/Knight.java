@@ -18,8 +18,11 @@ public class Knight extends Piece{
     }
 
     @Override
-    public int getImageResource() {
-        return mWhite ? R.drawable.white_knight : R.drawable.black_knight;
+    public int getImageResource(boolean whitePerspective) {
+        if (mWhite)
+            return whitePerspective ? R.drawable.white_knight : R.drawable.white_knight_reverse;
+        else
+            return whitePerspective ? R.drawable.black_knight : R.drawable.black_knight_reverse;
     }
     public String getSymbol(){
         return "n";

@@ -7,4 +7,6 @@
     <color name="gray_800">#1D2939</color>
     <color name="gray_300">#D0D5DD</color>
     <color name="gray_500">#667085</color>
+    <color name="error_500">#F04438</color>
+    <color name="success_500">#12B76A</color>
 </resources>

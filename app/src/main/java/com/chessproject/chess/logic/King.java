@@ -18,8 +18,11 @@ public class King extends Piece{
     }
 
     @Override
-    public int getImageResource() {
-        return mWhite ? R.drawable.white_king : R.drawable.black_king;
+    public int getImageResource(boolean whitePerspective) {
+        if (mWhite)
+            return whitePerspective ? R.drawable.white_king : R.drawable.white_king_reverse;
+        else
+            return whitePerspective ? R.drawable.black_king : R.drawable.black_king_reverse;
     }
     public String getSymbol(){
         return "k";

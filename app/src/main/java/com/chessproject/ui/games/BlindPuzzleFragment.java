@@ -49,13 +49,21 @@ public class BlindPuzzleFragment extends Fragment {
         binding.chessboard.setFinishedMoveListener(new BoardView.FinishedMoveListener() {
             @Override
             public void onFinishMove(Board.Move move) {
-                if (move == null || binding.chessboard.getBoard().isWhiteTurn() == mCurPuzzle.isWhiteToMove())
+                if (move == null) {
+                    (new AlertDialog.Builder(getContext()))
+                            .setTitle("Invalid move")
+                            .setMessage("You last move is illegal.")
+                            .show();
                     return;
+                }
+                if (binding.chessboard.getBoard().isWhiteTurn() == mCurPuzzle.isWhiteToMove())
+                    return;
+
                 Board.Move correctMove = mCurPuzzle.getCurrentMove();
                 if (correctMove.equal(move)) {
                     // If user is correct
                     // then set last move evaluation to correct
-                    binding.chessboard.setLastMoveEvaluation(move.getNewPosition(), BoardView.CORRECT_MOVE);
+                    binding.chessboard.setLastMoveEvaluation(0,-1);
                     Board.Move nextMove = mCurPuzzle.nextMove();
                     if (nextMove == null) {
                         mFinishDialog.show();
@@ -104,8 +112,10 @@ public class BlindPuzzleFragment extends Fragment {
         mCurPuzzle = PuzzleDataset.getInstance(getContext()).nextPuzzle();
         if (mCurPuzzle.isWhiteToMove()) {
             binding.sideToMove.setText(R.string.you_are_white);
+            binding.sideToMoveIcon.setBackground(requireContext().getDrawable(R.drawable.white_side));
         } else {
             binding.sideToMove.setText(R.string.you_are_black);
+            binding.sideToMoveIcon.setBackground(requireContext().getDrawable(R.drawable.black_side));
         }
 
         binding.chessboard.setFen(mCurPuzzle.getFen());

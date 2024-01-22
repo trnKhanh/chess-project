@@ -18,8 +18,11 @@ public class Bishop extends Piece{
     }
 
     @Override
-    public int getImageResource() {
-        return mWhite ? R.drawable.white_bishop : R.drawable.black_bishop;
+    public int getImageResource(boolean whitePerspective) {
+        if (mWhite)
+            return whitePerspective ? R.drawable.white_bishop : R.drawable.white_bishop_reverse;
+        else
+            return whitePerspective ? R.drawable.black_bishop : R.drawable.black_bishop_reverse;
     }
     public String getSymbol(){
         return "b";
