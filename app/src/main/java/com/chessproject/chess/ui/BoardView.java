@@ -43,15 +43,15 @@ public class BoardView extends FrameLayout implements BoardController {
     Context mContext;
     PieceView mPromotedPieceView = null;
     Board mBoard;
-    CellView[] mCellViews = new CellView[64];
-    HashMap<Integer, PieceView> mPieceViewMap = new HashMap<>();
-    ArrayList<PieceView> mExtraPieceViews = new ArrayList<>();
+    CellView[] mCellViews;
+    HashMap<Integer, PieceView> mPieceViewMap;
+    ArrayList<PieceView> mExtraPieceViews;
     boolean mIsSetupBoard = false;
     int mSelectedPosition = -1;
     CellView mSelectedCellView = null;
     ImageView mLastMoveEvalView = null;
     PromotionView mWhitePromotionSelections, mBlackPromotionSelections;
-    ArrayList<Pair<Integer, Integer>> mArrows = new ArrayList<>();
+    ArrayList<Pair<Integer, Integer>> mArrows;
     Pair<Integer, Integer> mBestMove = null;
     Paint mArrowPaint = new Paint();
     boolean mIsHidden = false;
@@ -63,6 +63,13 @@ public class BoardView extends FrameLayout implements BoardController {
     FinishedMoveListener mFinishedMoveListener = null;
     private void initBoard(String fen) {
         removeAllViews();
+        mArrows = new ArrayList<>();
+        mExtraPieceViews = new ArrayList<>();
+        mPieceViewMap = new HashMap<>();
+        mCellViews = new CellView[64];
+        mSelectedCellView = null;
+        mSelectedPosition = -1;
+        mPromotedPieceView = null;
         // Set clip children to false so that piece can be view even if it is outside of board.
         setClipChildren(false);
         // Set will not draw to false so that invalidate will trigger onDraw.
@@ -76,8 +83,10 @@ public class BoardView extends FrameLayout implements BoardController {
         for (Piece piece: mBoard.getPieces()) {
             PieceView pieceView = new PieceView(mContext, piece, this);
             mPieceViewMap.put(piece.getPosition(), pieceView);
+            pieceView.setVisibility(INVISIBLE);
             this.addView(pieceView);
         }
+        Log.d(TAG, String.valueOf(mPieceViewMap.size()));
         // Create 8x8 CellViews
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -102,6 +111,7 @@ public class BoardView extends FrameLayout implements BoardController {
         mBlackPromotionSelections.setZ(4);
         mBlackPromotionSelections.setVisibility(GONE);
         this.addView(mBlackPromotionSelections);
+        requestLayout();
     }
     public BoardView(@NonNull Context context, @Nullable AttributeSet attrs) {
         // Need to implement this so that it can be declared in XML.
@@ -120,7 +130,6 @@ public class BoardView extends FrameLayout implements BoardController {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
         int boardSize = Math.min(width, height);
@@ -162,6 +171,7 @@ public class BoardView extends FrameLayout implements BoardController {
     public boolean onTouchEvent(MotionEvent event) {
         if (mDisabled)
             return true;
+        Log.d(TAG, "TOUCH DRAW");
         // Touch event handled to correctly show the current selected cell.
         // Calculate position of touched.
         int cellWidth = getWidth() / 8;
@@ -267,6 +277,7 @@ public class BoardView extends FrameLayout implements BoardController {
     }
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
+        Log.d(TAG, "DRAW");
         super.onDraw(canvas);
         // Clear state of all cells.
         for (int i = 0; i < 64; ++i) {
@@ -391,6 +402,7 @@ public class BoardView extends FrameLayout implements BoardController {
         invalidate();
     }
     public void movePiece(Board.Move move) {
+        Log.d(TAG, "MOVE FROM " + String.valueOf(move.getOldPosition()));
         if (mPieceViewMap.containsKey(move.getOldPosition())) {
             setSelectedPiece(move.getOldPosition(), false);
             placeSelectedPiece(move.getNewPosition());
@@ -399,7 +411,14 @@ public class BoardView extends FrameLayout implements BoardController {
             }
         }
     }
-    public void setLastMoveEvaluation(int state) {
+    public void setLastMoveEvaluation(int position, int state) {
+        // Update last move evaluation
+        int iconWidth = mLastMoveEvalView.getWidth();
+        int iconHeight = mLastMoveEvalView.getHeight();
+        float iconX = position % 8 * mCellViews[0].getWidth() + mCellViews[0].getWidth() - (float)iconWidth / 2;
+        float iconY = position / 8 * mCellViews[0].getHeight() - (float)iconHeight / 2;
+        mLastMoveEvalView.setX(iconX);
+        mLastMoveEvalView.setY(iconY);
         switch (state) {
             case CORRECT_MOVE:
                 mLastMoveEvalView.setImageResource(R.drawable.correct_icon);
@@ -449,7 +468,7 @@ public class BoardView extends FrameLayout implements BoardController {
             }
             // Update evaluation
             updateEvaluation();
-            setLastMoveEvaluation(0);
+            setLastMoveEvaluation(0,0);
 
             invalidate();
         }
@@ -461,13 +480,22 @@ public class BoardView extends FrameLayout implements BoardController {
         mDisabled = !mDisabled;
         invalidate();
     }
+    public void setDisabled(boolean disabled) {
+        mDisabled = disabled;
+    }
     public void toggleHidden() {
         mIsHidden = !mIsHidden;
         invalidate();
     }
+    public void setHidden(boolean hidden) {
+        mIsHidden = hidden;
+    }
     public void toggleEvaluation() {
         mIsEvaluated = !mIsEvaluated;
         invalidate();
+    }
+    public void setEvaluation(boolean evaluation) {
+        mIsEvaluated = evaluation;
     }
     // Below is the implementation of BoardController.
     @Override
@@ -527,13 +555,7 @@ public class BoardView extends FrameLayout implements BoardController {
                     // Update piece's view position
                     mPieceViewMap.remove(oldPosition);
                     mPieceViewMap.put(position, selectedPieceView);
-                    // Update last move evaluation
-                    int iconWidth = mLastMoveEvalView.getWidth();
-                    int iconHeight = mLastMoveEvalView.getHeight();
-                    float iconX = position % 8 * mCellViews[0].getWidth() + mCellViews[0].getWidth() - (float)iconWidth / 2;
-                    float iconY = position / 8 * mCellViews[0].getHeight() - (float)iconHeight / 2;
-                    mLastMoveEvalView.setX(iconX);
-                    mLastMoveEvalView.setY(iconY);
+
                     // TODO: add functionality to evaluation view
                     if (!isPromotion) {
                         // Update evaluation

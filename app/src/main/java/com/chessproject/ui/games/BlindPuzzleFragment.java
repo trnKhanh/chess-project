@@ -33,6 +33,9 @@ public class BlindPuzzleFragment extends Fragment {
                 .setPositiveButton(R.string.next, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        binding.chessboard.setHidden(false);
+                        binding.chessboard.setDisabled(true);
+                        binding.readyButton.setVisibility(View.VISIBLE);
                         startPuzzle();
                         dialog.dismiss();
                     }
@@ -45,25 +48,27 @@ public class BlindPuzzleFragment extends Fragment {
                 })
                 .create();
         startPuzzle();
-        binding.chessboard.toggleDisabled();
+        binding.chessboard.setDisabled(true);
         binding.chessboard.setFinishedMoveListener(new BoardView.FinishedMoveListener() {
             @Override
             public void onFinishMove(Board.Move move) {
-                if (move == null)
+                if (move == null || binding.chessboard.getBoard().isWhiteTurn() == mCurPuzzle.isWhiteToMove())
                     return;
                 Board.Move correctMove = mCurPuzzle.getCurrentMove();
-                Log.d(TAG, String.valueOf(move));
                 if (correctMove.equal(move)) {
-                    binding.chessboard.setLastMoveEvaluation(BoardView.CORRECT_MOVE);
+                    // If user is correct
+                    // then set last move evaluation to correct
+                    binding.chessboard.setLastMoveEvaluation(move.getNewPosition(), BoardView.CORRECT_MOVE);
                     Board.Move nextMove = mCurPuzzle.nextMove();
                     if (nextMove == null) {
                         mFinishDialog.show();
                     } else {
-                        binding.chessboard.movePiece(mCurPuzzle.nextMove());
+                        binding.chessboard.movePiece(nextMove);
+                        mCurPuzzle.nextMove();
                     }
                 } else {
-                    binding.chessboard.setLastMoveEvaluation(BoardView.WRONG_MOVE);
-                    binding.chessboard.toggleDisabled();
+                    binding.chessboard.setLastMoveEvaluation(move.getNewPosition(), BoardView.WRONG_MOVE);
+                    binding.chessboard.setDisabled(true);
                     binding.retryButton.setVisibility(View.VISIBLE);
                 }
             }
@@ -72,8 +77,9 @@ public class BlindPuzzleFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 binding.readyButton.setVisibility(View.GONE);
-                binding.chessboard.toggleHidden();
-                binding.chessboard.toggleDisabled();
+                binding.chessboard.setHidden(true);
+                binding.chessboard.setDisabled(false);
+                startMove();
             }
         });
         binding.retryButton.setVisibility(View.GONE);
@@ -81,13 +87,16 @@ public class BlindPuzzleFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 binding.chessboard.rollbackLastMove();
-                binding.chessboard.toggleDisabled();
+                binding.chessboard.setDisabled(false);
                 binding.retryButton.setVisibility(View.GONE);
             }
         });
         binding.nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                binding.chessboard.setHidden(false);
+                binding.chessboard.setDisabled(true);
+                binding.readyButton.setVisibility(View.VISIBLE);
                 startPuzzle();
             }
         });
@@ -95,9 +104,12 @@ public class BlindPuzzleFragment extends Fragment {
     }
     void startPuzzle() {
         mCurPuzzle = PuzzleDataset.getInstance(getContext()).nextPuzzle();
-        Log.d(TAG, mCurPuzzle.getFen());
-        Log.d(TAG, String.valueOf(mCurPuzzle.getCurrentMove().getNewPosition()));
+
         binding.chessboard.setFen(mCurPuzzle.getFen());
+        binding.chessboard.setLastMoveEvaluation(0,-1);
+    }
+    void startMove() {
+        // Move current move and go to next move
         Board.Move move = mCurPuzzle.getCurrentMove();
         mCurPuzzle.nextMove();
         binding.chessboard.movePiece(move);

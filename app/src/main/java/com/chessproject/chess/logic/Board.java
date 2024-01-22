@@ -47,8 +47,8 @@ public class Board {
         public boolean equal(Move move) {
             return this.oldPosition == move.oldPosition &&
                     this.newPosition == move.newPosition &&
-                    this.promotionFrom.compareTo(move.promotionFrom) == 0 &&
-                    this.promotionTo.compareTo(move.promotionTo) == 0;
+                    (this.promotionFrom == null || this.promotionFrom.compareTo(move.promotionFrom) == 0) &&
+                    (this.promotionTo == null || this.promotionTo.compareTo(move.promotionTo) == 0);
         }
     }
     // TODO: find ways to record history
@@ -58,9 +58,11 @@ public class Board {
     int mPromotionCount = 0;
     private boolean mIsWhiteTurn = true;
     public Board(String fen) {
+        if (fen == null) {
+            fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        }
         mMovesHistory = new ArrayList<>();
         // TODO: remove this when finishing all logics
-        fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 w";
         String[] fields = fen.split(" ");
         String piecePlaces = fields[0];
 
@@ -81,6 +83,8 @@ public class Board {
         // white or black turn
         String turnSide = fields[1];
         mIsWhiteTurn = turnSide.equals("w");
+        Log.d(TAG, String.valueOf(fen));
+        Log.d(TAG, "Is white turn: " + String.valueOf(mIsWhiteTurn));
         // TODO: En Passant and castle
     }
 
@@ -194,7 +198,6 @@ public class Board {
         }
         getLastMove().setPromotion(from, pieceType);
 
-        Log.d(TAG, String.valueOf(mPieces[position].isWhite()));
         return mPieces[position];
     }
     public Move rollbackLastMove() {
@@ -238,6 +241,7 @@ public class Board {
         mPieces[move.getNewPosition()] = move.getCapturedPiece();
         // Update position of piece
         mPieces[move.getOldPosition()].setPosition(move.getOldPosition());
+        mIsWhiteTurn = !mIsWhiteTurn;
         return move;
     }
     public String getFen() {
