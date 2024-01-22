@@ -4,50 +4,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_home">
-
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.chessproject.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
-
     <fragment
         android:id="@+id/navigation_camera"
-        android:name="com.chessproject.ui.camera.CameraFragment"
+        android:name="com.chessproject.ui.detector.CameraFragment"
         android:label="@string/title_camera"
         tools:layout="@layout/fragment_camera" />
-
-    <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.chessproject.ui.games.GamesFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
-
     <fragment
         android:id="@+id/navigation_prepare_image"
-        android:name="com.chessproject.ui.camera.PrepareImageFragment"
+        android:name="com.chessproject.ui.detector.PrepareImageFragment"
         android:label="@string/title_prepare_image"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_prepare_image" />
     <fragment
-        android:id="@+id/navigation_chess_board"
-        android:name="com.chessproject.ui.chessboard.ChessBoardFragment"
-        android:label="@string/title_chess_board"
-        tools:layout="@layout/fragment_chess_board"/>
-        tools:layout="@layout/fragment_games" />
+        android:id="@+id/navigation_result"
+        android:name="com.chessproject.ui.detector.ResultFragment"
+        android:label="@string/title_result"
+        tools:layout="@layout/fragment_result"/>
 
+    <fragment
+        android:id="@+id/navigation_games"
+        android:name="com.chessproject.ui.games.GamesFragment"
+        android:label="@string/title_games"
+        tools:layout="@layout/fragment_games" />
     <fragment
         android:id="@+id/navigation_evaluation_game"
         android:name="com.chessproject.ui.games.EvaluationGameFragment"
-        android:label="Guess the evaluation"
+        android:label="@string/title_games_guess_the_eval"
         tools:layout="@layout/fragment_evaluation_game" />
     <fragment
         android:id="@+id/navigation_puzzle"
         android:name="com.chessproject.ui.games.PuzzleFragment"
-        android:label="Puzzle"
+        android:label="@string/title_puzzle"
         tools:layout="@layout/fragment_puzzle" />
     <fragment
         android:id="@+id/navigation_blind_puzzle"
         android:name="com.chessproject.ui.games.BlindPuzzleFragment"
-        android:label="Blind Puzzle"
+        android:label="@string/title_blind_puzzle"
         tools:layout="@layout/fragment_blind_puzzle" />
 </navigation>

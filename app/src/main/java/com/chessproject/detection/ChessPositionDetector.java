@@ -63,8 +63,6 @@ public class ChessPositionDetector {
             List<Future<Object>> results = mExecutorService.invokeAll(callables);
             pts = (ArrayList<Point>) results.get(0).get();
             boxes = (ArrayList<BoundingBox>) results.get(1).get();
-            Log.d(TAG, String.valueOf(pts.size()));
-            Log.d(TAG, String.valueOf(boxes.size()));
             String fen = getFen(pts, boxes);
 
             return fen;
