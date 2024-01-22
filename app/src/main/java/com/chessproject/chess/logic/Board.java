@@ -74,7 +74,8 @@ public class Board {
                 indexSquare += emptySquares;
             }
             else {
-                mPieces[indexSquare++] = Piece.createPiece(indexSquare, c, this);
+                mPieces[indexSquare] = Piece.createPiece(indexSquare, c, this);
+                indexSquare++;
             }
         }
         // white or black turn
