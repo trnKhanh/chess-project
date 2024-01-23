@@ -2,10 +2,12 @@ package com.chessproject.ui.detector;// ... (existing imports)
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +29,7 @@ import com.chessproject.utils.ImageUtils;
 import java.util.concurrent.ExecutorService;
 
 public class PrepareImageFragment extends Fragment implements View.OnClickListener {
-
+    final static String TAG = "PrepareImageFragment";
     private DetectorViewModel detectorViewModel;
     ImageView capturedImageView;
     Button continueButton;
@@ -50,6 +52,7 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
         executorService = ((MyApplication) getActivity().getApplication()).getExecutorService();
         mainHandler = ((MyApplication) getActivity().getApplication()).getMainHandler();
         detectorViewModel = new ViewModelProvider(requireActivity()).get(DetectorViewModel.class);
+        navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
     }
 
     @Override
@@ -150,17 +153,15 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
     private void goToCheckBoardFragment() {
         showProgressDialog();
         Bitmap bitmap = detectorViewModel.getCapturedImage().getValue();
-        byte[] bytes = ImageUtils.getBytesFromBitmap(bitmap);
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                String fen = (new ChessPositionDetector()).detectPosition(bytes);
+                String fen = ChessPositionDetector.getInstance(requireContext()).detectPosition(bitmap);
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         detectorViewModel.setFen(fen);
                         hideProgressDialog();
-                        navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
                         navController.navigate(R.id.navigation_result);
                     }
                 });
