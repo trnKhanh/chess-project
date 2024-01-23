@@ -48,13 +48,13 @@ public class HomeFragment extends Fragment{
 
         buttonStartDetection = root.findViewById(R.id.button_start_detection);
         exploreGameLayout = root.findViewById(R.id.container_game);
+        navController = NavHostFragment.findNavController(this);
         setupListener();
         return root;
     }
 
     private void setupListener() {
         buttonStartDetection.setOnClickListener(view -> {
-            navController = NavHostFragment.findNavController(this);
             navController.navigate(R.id.navigation_camera);
         });
         exploreGameLayout.setOnClickListener(view -> {

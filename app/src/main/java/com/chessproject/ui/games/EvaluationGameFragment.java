@@ -91,6 +91,14 @@ public class EvaluationGameFragment extends Fragment {
     void startGame() {
         mCurrentRecord = EvaluationGameDataset.getInstance(requireContext()).nextRecord();
         binding.chessboard.setFen(mCurrentRecord.first);
+
+        if (binding.chessboard.getBoard().isWhiteTurn()) {
+            binding.sideToMove.setText("White to move");
+            binding.sideToMoveIcon.setBackground(requireContext().getDrawable(R.drawable.white_side));
+        } else {
+            binding.sideToMove.setText("Black to move");
+            binding.sideToMoveIcon.setBackground(requireContext().getDrawable(R.drawable.black_side));
+        }
         Log.d(TAG, mCurrentRecord.second);
     }
 }

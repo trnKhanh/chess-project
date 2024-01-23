@@ -11,13 +11,19 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center">
+        <View
+            android:layout_width="8pt"
+            android:layout_height="8pt"
+            android:background="@color/black"
+            android:layout_gravity="center"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/side_to_move_icon"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:id="@+id/side_to_move"
             android:textColor="@color/gray_500"
-            android:text="@string/evaluation_question"
             android:textStyle="bold"
             android:textSize="14pt"/>
     </LinearLayout>
@@ -28,6 +34,20 @@
         android:id="@+id/chessboard"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="20dp"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/gray_500"
+            android:text="@string/evaluation_question"
+            android:textStyle="bold"
+            android:textSize="14pt"/>
+    </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
