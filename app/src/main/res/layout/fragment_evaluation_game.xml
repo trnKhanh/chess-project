@@ -6,38 +6,58 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.games.EvaluationGameFragment"
     android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/side_to_move"
+            android:textColor="@color/gray_500"
+            android:text="@string/evaluation_question"
+            android:textStyle="bold"
+            android:textSize="14pt"/>
+    </LinearLayout>
     <com.chessproject.chess.ui.BoardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:id="@+id/chessboard"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/evaluation_question"
-        android:textSize="12pt"/>
+        android:id="@+id/chessboard"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="20dp"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="horizontal">
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/white"
             android:backgroundTint="@color/white"
             android:textColor="@color/black"
-            android:id="@+id/white_button"/>
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:textSize="10pt"
+            app:strokeColor="@color/black"
+            app:cornerRadius="3pt"
+            android:id="@+id/white_button"
+            />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:backgroundTint="@color/black"
+            android:backgroundTint="@color/gray_600"
             android:layout_marginHorizontal="10dp"
             android:textColor="@color/white"
             android:text="@string/draw"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:textSize="10pt"
+            app:strokeColor="@color/black"
+            app:cornerRadius="3pt"
             android:id="@+id/draw_button"/>
         <Button
             android:layout_width="wrap_content"
@@ -46,6 +66,10 @@
             android:backgroundTint="@color/black"
             android:textColor="@color/white"
             android:text="@string/black"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:textSize="10pt"
+            app:strokeColor="@color/black"
+            app:cornerRadius="3pt"
             android:id="@+id/black_button"/>
     </LinearLayout>
 

@@ -1,6 +1,7 @@
 package com.chessproject.dataset;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.chessproject.chess.logic.Board;
 import com.chessproject.chess.logic.Knight;
@@ -17,7 +18,9 @@ import java.util.Random;
 import kotlin.random.AbstractPlatformRandom;
 
 public class PuzzleDataset {
+    final static String TAG = "PuzzleDataset";
     public static class Puzzle {
+        final static String TAG = "PuzzleDataset.Puzzle";
         String mFen;
         int mMoveId = 0;
         ArrayList<Board.Move> mMoves;
@@ -26,6 +29,9 @@ public class PuzzleDataset {
             mFen = fen;
             mMoves = moves;
             mWhiteToMove = whiteToMove;
+        }
+        public void reset() {
+            mMoveId = 0;
         }
         public String getFen() {
             return mFen;
@@ -52,7 +58,6 @@ public class PuzzleDataset {
     Random random = new Random();
     static PuzzleDataset mInstance;
     PuzzleDataset(Context context) {
-        // TODO: Read dataset here
         ArrayList<HashMap<String, String>> puzzleRecords = FileUtils.readCSV(context, "lichess_db_puzzle.csv");
 
         mPuzzles = new ArrayList<>();
@@ -60,7 +65,7 @@ public class PuzzleDataset {
             String fen = puzzleRecord.get("FEN");
             Board board = new Board(fen);
 
-            String[] moveStrings = puzzleRecord.get("Moves").split(",");
+            String[] moveStrings = puzzleRecord.get("Moves").split(" ");
             boolean whiteTurn = board.isWhiteTurn();
 
             ArrayList<Board.Move> moves = new ArrayList<>();
@@ -74,7 +79,7 @@ public class PuzzleDataset {
                 }
                 moves.add(move);
             }
-            mPuzzles.add(new Puzzle(fen, moves, whiteTurn));
+            mPuzzles.add(new Puzzle(fen, moves, !whiteTurn));
         }
     }
     public static PuzzleDataset getInstance(Context context) {
@@ -89,6 +94,7 @@ public class PuzzleDataset {
         id %= mPuzzles.size();
         if (id < 0)
             id += mPuzzles.size();
+        mPuzzles.get(id).reset();
         return mPuzzles.get(id);
     }
 }

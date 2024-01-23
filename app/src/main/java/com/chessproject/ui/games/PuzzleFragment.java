@@ -2,17 +2,21 @@ package com.chessproject.ui.games;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.chessproject.MyApplication;
 import com.chessproject.R;
 import com.chessproject.chess.logic.Board;
 import com.chessproject.chess.ui.BoardView;
@@ -49,21 +53,31 @@ public class PuzzleFragment extends Fragment {
         binding.chessboard.setFinishedMoveListener(new BoardView.FinishedMoveListener() {
             @Override
             public void onFinishMove(Board.Move move) {
-                if (move == null)
+                if (move == null || binding.chessboard.getBoard().isWhiteTurn() == mCurPuzzle.isWhiteToMove())
                     return;
                 Board.Move correctMove = mCurPuzzle.getCurrentMove();
-                Log.d(TAG, String.valueOf(move));
                 if (correctMove.equal(move)) {
-                    binding.chessboard.setLastMoveEvaluation(BoardView.CORRECT_MOVE);
+                    // If user is correct
+                    // then set last move evaluation to correct
+                    binding.chessboard.setLastMoveEvaluation(0,-1);
                     Board.Move nextMove = mCurPuzzle.nextMove();
                     if (nextMove == null) {
                         mFinishDialog.show();
                     } else {
-                        binding.chessboard.movePiece(mCurPuzzle.nextMove());
+
+                        Handler mainHandler = ((MyApplication)(getActivity().getApplication())).getMainHandler();
+                        mainHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Move current move and go to next move
+                                binding.chessboard.movePiece(nextMove);
+                                mCurPuzzle.nextMove();
+                            }
+                        }, 100);
                     }
                 } else {
-                    binding.chessboard.setLastMoveEvaluation(BoardView.WRONG_MOVE);
-                    binding.chessboard.toggleDisabled();
+                    binding.chessboard.setLastMoveEvaluation(move.getNewPosition(), BoardView.WRONG_MOVE);
+                    binding.chessboard.setDisabled(true);
                     binding.retryButton.setVisibility(View.VISIBLE);
                 }
             }
@@ -73,7 +87,7 @@ public class PuzzleFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 binding.chessboard.rollbackLastMove();
-                binding.chessboard.toggleDisabled();
+                binding.chessboard.setDisabled(false);
                 binding.retryButton.setVisibility(View.GONE);
             }
         });
@@ -86,12 +100,32 @@ public class PuzzleFragment extends Fragment {
         return binding.getRoot();
     }
     void startPuzzle() {
+        binding.retryButton.setVisibility(View.GONE);
+        binding.chessboard.setDisabled(false);
+
         mCurPuzzle = PuzzleDataset.getInstance(getContext()).nextPuzzle();
-        Log.d(TAG, mCurPuzzle.getFen());
-        Log.d(TAG, String.valueOf(mCurPuzzle.getCurrentMove().getNewPosition()));
         binding.chessboard.setFen(mCurPuzzle.getFen());
-        Board.Move move = mCurPuzzle.getCurrentMove();
-        mCurPuzzle.nextMove();
-        binding.chessboard.movePiece(move);
+        binding.chessboard.setLastMoveEvaluation(0,-1);
+        binding.chessboard.setPerspective(mCurPuzzle.isWhiteToMove());
+        if (mCurPuzzle.isWhiteToMove()) {
+            binding.sideToMove.setText(R.string.you_are_white);
+            binding.sideToMoveIcon.setBackground(requireContext().getDrawable(R.drawable.white_side));
+        } else {
+            binding.sideToMove.setText(R.string.you_are_black);
+            binding.sideToMoveIcon.setBackground(requireContext().getDrawable(R.drawable.black_side));
+        }
+        Handler mainHandler = ((MyApplication)(getActivity().getApplication())).getMainHandler();
+        mainHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Move current move and go to next move
+                Board.Move move = mCurPuzzle.getCurrentMove();
+                mCurPuzzle.nextMove();
+                Log.d(TAG, String.valueOf(move.getOldPosition()));
+                Log.d(TAG, String.valueOf(move.getNewPosition()));
+                binding.chessboard.movePiece(move);
+            }
+        }, 100);
+
     }
 }

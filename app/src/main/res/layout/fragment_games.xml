@@ -5,24 +5,55 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.games.GamesFragment"
-    android:orientation="vertical">
-
-    <Button
-        android:layout_width="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/evaluation_game_label"
-        android:layout_gravity="center"
-        android:id="@+id/evaluation_game"/>
-    <Button
-        android:layout_width="wrap_content"
+        android:textSize="12pt"
+        android:layout_gravity="start"
+        android:textAlignment="textStart"
+        android:id="@+id/evaluation_game"
+        app:icon="@drawable/ic_guess_evaluation"
+        app:backgroundTint="@color/gray_300"
+        android:textColor="@color/black"
+        app:iconTint="@color/black"
+        app:iconSize="12pt"
+        android:padding="10dp"
+        android:textAllCaps="false"
+        />
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/puzzle_label"
-        android:layout_gravity="center"
-        android:id="@+id/puzzle"/>
-    <Button
-        android:layout_width="wrap_content"
+        android:textSize="12pt"
+        android:layout_gravity="start"
+        android:textAlignment="textStart"
+        android:layout_marginVertical="50dp"
+        android:id="@+id/puzzle"
+        app:backgroundTint="@color/gray_300"
+        android:textColor="@color/black"
+        app:iconTint="@color/black"
+        app:icon="@drawable/ic_puzzle"
+        app:iconSize="12pt"
+        android:padding="10dp"
+        android:textAllCaps="false"
+        />
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/blind_puzzle_label"
-        android:layout_gravity="center"
-        android:id="@+id/blind_puzzle"/>
+        android:textSize="12pt"
+        android:layout_gravity="start"
+        android:textAlignment="textStart"
+        android:id="@+id/blind_puzzle"
+        app:backgroundTint="@color/gray_300"
+        android:textColor="@color/black"
+        app:iconTint="@color/black"
+        app:icon="@drawable/ic_blind_puzzle"
+        app:iconSize="12pt"
+        android:padding="10dp"
+        android:textAllCaps="false"
+        />
 </LinearLayout>

@@ -2,10 +2,12 @@ package com.chessproject.ui.detector;// ... (existing imports)
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +29,7 @@ import com.chessproject.utils.ImageUtils;
 import java.util.concurrent.ExecutorService;
 
 public class PrepareImageFragment extends Fragment implements View.OnClickListener {
-
+    final static String TAG = "PrepareImageFragment";
     private DetectorViewModel detectorViewModel;
     ImageView capturedImageView;
     Button continueButton;
@@ -50,6 +52,7 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
         executorService = ((MyApplication) getActivity().getApplication()).getExecutorService();
         mainHandler = ((MyApplication) getActivity().getApplication()).getMainHandler();
         detectorViewModel = new ViewModelProvider(requireActivity()).get(DetectorViewModel.class);
+        navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
     }
 
     @Override
@@ -84,27 +87,37 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
     }
 
     private void fixToggleButton() {
-        updateToggleButtonState("Choose next turn: ", whiteTurnButton, blackTurnButton, nextTurnTextView, isWhiteTurn);
-        updateToggleButtonState("Choose view: ", whiteViewButton, blackViewButton, nextViewTextView, isWhiteView);
+        updateToggleButtonState("Choose next turn: ",
+                whiteTurnButton,
+                blackTurnButton,
+                nextTurnTextView,
+                isWhiteTurn);
+        updateToggleButtonState("Choose view: ",
+                whiteViewButton,
+                blackViewButton,
+                nextViewTextView,
+                isWhiteView);
     }
 
     private void updateToggleButtonState(String pattern, TextView activeButton, TextView inactiveButton, TextView textView, boolean isWhite) {
         if (isWhite) {
             activeButton.setBackgroundResource(R.drawable.rounded_background_border_true);
             activeButton.setTypeface(null, Typeface.BOLD);
-            activeButton.setTextColor(Color.BLACK);
+            activeButton.setTextColor(Color.WHITE);
+            activeButton.setBackgroundColor(requireContext().getColor(R.color.gray_800));
             inactiveButton.setBackgroundResource(R.drawable.rounded_background_border_false);
             inactiveButton.setTypeface(null, Typeface.NORMAL);
             inactiveButton.setTextColor(Color.parseColor("#808080"));
-            textView.setText(pattern + "White");
+            inactiveButton.setBackgroundColor(requireContext().getColor(R.color.gray_300));
         } else {
             inactiveButton.setBackgroundResource(R.drawable.rounded_background_border_true);
             inactiveButton.setTypeface(null, Typeface.BOLD);
-            inactiveButton.setTextColor(Color.BLACK);
+            inactiveButton.setTextColor(Color.WHITE);
+            inactiveButton.setBackgroundColor(requireContext().getColor(R.color.gray_800));
             activeButton.setBackgroundResource(R.drawable.rounded_background_border_false);
             activeButton.setTypeface(null, Typeface.NORMAL);
             activeButton.setTextColor(Color.parseColor("#808080"));
-            textView.setText(pattern + "Black");
+            activeButton.setBackgroundColor(requireContext().getColor(R.color.gray_300));
         }
     }
 
@@ -140,17 +153,15 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
     private void goToCheckBoardFragment() {
         showProgressDialog();
         Bitmap bitmap = detectorViewModel.getCapturedImage().getValue();
-        byte[] bytes = ImageUtils.getBytesFromBitmap(bitmap);
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                String fen = (new ChessPositionDetector()).detectPosition(bytes);
+                String fen = ChessPositionDetector.getInstance(requireContext()).detectPosition(bitmap);
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         detectorViewModel.setFen(fen);
                         hideProgressDialog();
-                        navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
                         navController.navigate(R.id.navigation_result);
                     }
                 });
