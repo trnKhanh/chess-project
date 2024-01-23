@@ -5,6 +5,8 @@ import android.util.Log;
 import java.util.ArrayList;
 
 public class Board {
+
+
     public static class Move {
         private final int oldPosition;
         private final int newPosition;
@@ -101,6 +103,10 @@ public class Board {
         if (position < 0 || position >= 64)
             return null;
         return mPieces[position];
+    }
+    public Piece getPiece(int col, int row){
+        if (col < 0 || row < 0 || col >= 8 || row >= 8) return null;
+        return mPieces[col + row * 8];
     }
     public void setPiece(int position, Piece piece) {
         // If position is invalid then return.
@@ -265,5 +271,100 @@ public class Board {
     }
     public String getFen() {
         return "r2q1rk1/ppp2ppp/3bbn2/3p4/8/1B1P4/PPPPPPPP/RNB1QRK1 w - - 5 11";
+    }
+    public boolean canMove(int oldPosition, int newPosition, boolean isWhite) {
+        boolean isValidMove = movePiece(oldPosition, newPosition);
+        if (!isValidMove) return false;
+        if (isCheck(isWhite)) {
+            rollbackLastMove();
+            return false;
+        }
+        else {
+            rollbackLastMove();
+            return true;
+        }
+    }
+
+    private boolean isCheck(boolean isWhite) {
+        // find King Position
+        int kingPosition = 0;
+        for (int i = 0; i < 64; i++) {
+            Piece piece = getPiece(i);
+            // if the King with isWhite
+            if (piece != null && piece.getClass() == King.class && piece.isWhite() == isWhite) {
+                kingPosition = i;
+                break;
+            }
+        }
+        Log.d(TAG, "KING POSITION IS " + String.valueOf(kingPosition));
+        int colId = kingPosition % 8;
+        int rowId = kingPosition / 8;
+        // if king is checked by a knight
+        for (int offsetCol = 1; offsetCol <= 2; ++offsetCol) {
+            int offsetRow = 3 - offsetCol;
+            for (int i = -1; i <= 1; i += 2) {
+                for (int j = -1; j <= 1; j += 2) {
+                    int x = colId + offsetCol * i;
+                    int y = rowId + offsetRow * j;
+                    Log.d(TAG, String.valueOf(x) + ' ' + String.valueOf(y));
+                    Piece piece = getPiece(x, y);
+                    if (piece == null) continue;
+                    if (piece.getClass() == Knight.class && piece.isWhite() != isWhite)
+                        return true;
+                }
+            }
+        }
+        //if king is check by a rook or queen or bishop
+
+        // bishop direct
+        int[][] Directions = new int[][]{
+                {1, 1},
+                {1, -1},
+                {-1, 1},
+                {-1, -1},
+                {0, 1},
+                {0, -1},
+                {1, 0},
+                {-1, 0},
+        };
+        for (int[] d : Directions) {
+            int x = colId;
+            int y = rowId;
+            while (true) {
+                x += d[0];
+                y += d[1];
+                if (x < 0 || y < 0 || x >= 8 || y >= 8) break;
+                Piece piece = getPiece(x, y);
+                if (piece == null ) continue;
+                if (piece.isWhite() == isWhite) break;
+                // if is checked by a queen
+                if (piece.getClass() == Queen.class)
+                    return true;
+                // if is checked by a rook
+                if (piece.getClass() == Rook.class && (d[0] * d[1] == 0)) return true;
+                // if is checked by a bishop
+                if (piece.getClass() == Bishop.class && (d[0] * d[1] != 0)) return true;
+                break;
+            }
+        }
+        // is check by a King
+        for (int i = -1 ; i <= 1; i++)
+            for (int j = -1; j <= 1; j++){
+                int x = colId + i;
+                int y = rowId + i;
+                Piece piece = getPiece(x, y);
+                if (piece == null) continue;
+                if (piece.isWhite() != isWhite && piece.getClass() == King.class) return true;
+            }
+        // is check by a Pawn
+        int offset = (isWhite) ? -1 : 1;
+        for (int i = -1 ; i <= 1; i+= 2){
+            int x = colId + offset;
+            int y = rowId + i;
+            Piece piece = getPiece(x, y);
+            if (piece == null) continue;
+            if (piece.isWhite() != isWhite && piece.getClass() == Pawn.class) return true;
+        }
+        return false;
     }
 }

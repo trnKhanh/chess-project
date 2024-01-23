@@ -52,7 +52,8 @@ public class Pawn extends Piece{
             int y = rowId + i * direction;
             Piece piece = mBoard.getPiece(x + y * 8);
             if (piece != null) break;
-            legalMoves.add(x + 8 * y);
+            if (mBoard.canMove(mPosition, x + 8 * y, isWhite()))
+                legalMoves.add(x + 8 * y);
         }
         int x = colId;
         int y = rowId + direction;
@@ -60,13 +61,15 @@ public class Pawn extends Piece{
         {
             Piece piece = mBoard.getPiece(x - 1 + y * 8);
             if (piece != null && mBoard.getPiece(x - 1 + y * 8).isWhite() != isWhite())
-                legalMoves.add(x - 1 + 8 * y);
+                if (mBoard.canMove(mPosition, x - 1 + 8 * y, isWhite()))
+                    legalMoves.add(x - 1 + 8 * y);
         }
         if (x + 1 >= 0)
         {
             Piece piece = mBoard.getPiece(x + 1 + y * 8);
             if (piece != null && mBoard.getPiece(x + 1 + y * 8).isWhite() != isWhite())
-                legalMoves.add(x + 1 + 8 * y);
+                if (mBoard.canMove(mPosition, x + 1 + 8 * y, isWhite()))
+                    legalMoves.add(x + 1 + 8 * y);
         }
 
         return legalMoves;

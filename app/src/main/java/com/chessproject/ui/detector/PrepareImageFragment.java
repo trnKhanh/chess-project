@@ -156,7 +156,8 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                String fen = ChessPositionDetector.getInstance(requireContext()).detectPosition(bitmap);
+                String fen = (new ChessPositionDetector()).detectPosition(bytes)
+                        + ((isWhiteTurn) ? " w" : " b") ;
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {

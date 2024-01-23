@@ -54,10 +54,13 @@ public class Queen extends Piece{
                 if (x < 0 || y < 0 || x >= 8 || y >= 8) break;
                 Piece piece = mBoard.getPiece(x + y * 8);
                 if (piece != null){
-                    if (mBoard.getPiece(y * 8 + x).isWhite() != isWhite()) legalMoves.add(x + 8 * y);
+                    if (mBoard.getPiece(y * 8 + x).isWhite() != isWhite())
+                        if (mBoard.canMove(mPosition, x + 8 * y, isWhite()))
+                            legalMoves.add(x + 8 * y);
                     break;
                 }
-                legalMoves.add(x + 8 * y);
+                if (mBoard.canMove(mPosition, x + 8 * y, isWhite()))
+                    legalMoves.add(x + 8 * y);
             }
         }
         return legalMoves;

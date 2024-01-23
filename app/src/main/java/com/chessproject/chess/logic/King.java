@@ -1,5 +1,7 @@
 package com.chessproject.chess.logic;
 
+import android.util.Log;
+
 import com.chessproject.R;
 
 import java.util.ArrayList;
@@ -45,10 +47,8 @@ public class King extends Piece{
                 Piece piece = mBoard.getPiece(x + y * 8);
                 if (piece != null && mBoard.getPiece(y * 8 + x).isWhite() == isWhite())
                     continue;
-//                mBoard.movePiece(mPosition, x + 8 * y);
-//                boolean kt = mBoard.isCheck();
-//                mBoard.rollbackLastMove();
-                legalMoves.add(x + 8 * y);
+                if (mBoard.canMove(mPosition, x + 8 * y, isWhite()))
+                    legalMoves.add(x + 8 * y);
             }
         return legalMoves;
     }
