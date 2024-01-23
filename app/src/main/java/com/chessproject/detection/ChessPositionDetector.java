@@ -56,7 +56,7 @@ public class ChessPositionDetector {
     private ChessPositionDetector(Context context) {
         mContext = context;
     }
-    public String detectPosition(Bitmap image) {
+    public String detectPosition(Bitmap image, boolean isWhitePerspective) {
         List<Callable<Object>> callables = new ArrayList<>();
         callables.add(new Callable<Object>() {
             @Override
@@ -76,7 +76,7 @@ public class ChessPositionDetector {
             List<Future<Object>> results = mExecutorService.invokeAll(callables);
             pts = (ArrayList<Point>) results.get(0).get();
             boxes = (ArrayList<BoundingBox>) results.get(1).get();
-            String fen = getFen(pts, boxes);
+            String fen = getFen(pts, boxes, isWhitePerspective);
             Log.d(TAG, String.valueOf(pts.size()));
             Log.d(TAG, String.valueOf(boxes.size()));
             return fen;
@@ -86,7 +86,7 @@ public class ChessPositionDetector {
 
         return null;
     }
-    String getFen(ArrayList<Point> pts, ArrayList<BoundingBox> boxes) {
+    String getFen(ArrayList<Point> pts, ArrayList<BoundingBox> boxes, boolean isWhitePerspective) {
         long n = pts.size();
         Point F = pts.get(0);
         Point A = F;
@@ -269,6 +269,15 @@ public class ChessPositionDetector {
                 predictedBoard[posX][posY] = new Pair<>(cls, conf);
             }
         }
+        if (!isWhitePerspective) {
+            Pair<String, Double> [][] tmp = new Pair[8][8];
+            for (int i = 0; i < 8; ++i)
+                for (int j = 0; j < 8; ++j) {
+                    tmp[i][j] = predictedBoard[7 - i][7 - j];
+                }
+            predictedBoard = tmp;
+        }
+
         HashMap<String, String> pieceMap = ChessConstants.getPieceMap();
         StringBuilder fen = new StringBuilder();
 
@@ -293,7 +302,7 @@ public class ChessPositionDetector {
                 fen.append("/");
             }
         }
-
+        Log.d(TAG, String.valueOf(isWhitePerspective));
         return fen.toString();
     };
     private boolean isInRect(Point pt, float[] rect) {

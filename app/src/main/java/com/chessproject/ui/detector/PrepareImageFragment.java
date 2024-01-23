@@ -156,12 +156,15 @@ public class PrepareImageFragment extends Fragment implements View.OnClickListen
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                String fen = (new ChessPositionDetector()).detectPosition(bytes)
-                        + ((isWhiteTurn) ? " w" : " b") ;
+                String fen = ChessPositionDetector.getInstance(requireContext()).detectPosition(bitmap, isWhiteView);
+                Log.d(TAG, String.valueOf(fen));
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        detectorViewModel.setFen(fen);
+                        if (fen != null)
+                            detectorViewModel.setFen(fen + ((isWhiteTurn) ? " w" : " b"));
+                        else
+                            detectorViewModel.setFen(fen);
                         hideProgressDialog();
                         navController.navigate(R.id.navigation_result);
                     }
