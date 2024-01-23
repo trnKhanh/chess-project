@@ -38,7 +38,8 @@ public class HelpDetectionFragment extends HelpFragment {
     protected void initData() {
         super.initData();
         tutorialSlide = new ArrayList<>();
-        tutorialSlide.add(new TutorialInfo("STEP 1/2: ", R.drawable.chess_vision_image));
-        tutorialSlide.add(new TutorialInfo("STEP 2/2: ", R.drawable.black_bishop));
+        tutorialSlide.add(new TutorialInfo("STEP 1/3: Capture the image of a chessboard.", R.drawable.detection_tutorial_step_1));
+        tutorialSlide.add(new TutorialInfo("STEP 2/3: Choose which side is going next and perspective of the chessboard (from white or from black side) and click Continue.", R.drawable.detection_tutorial_step_2));
+        tutorialSlide.add(new TutorialInfo("STEP 3/3: Get the result.", R.drawable.detection_tutorial_step_3));
     }
 }

@@ -22,20 +22,4 @@ public class HelpPuzzleFragment extends HelpFragment {
         initializeUI(root);
         return root;
     }
-
-    @Override
-    protected void initializeUI(View root) {
-        super.initializeUI(root);
-        initData();
-        tutorialContainer = root.findViewById(R.id.image_tutorial_container_puzzle);
-        adapter = new TutorialPagerAdapter(requireContext(), tutorialSlide);
-        tutorialContainer.setAdapter(adapter);
-        tutorialContainer.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-    }
-
-    @Override
-    protected void initData() {
-        super.initData();
-        tutorialSlide = new ArrayList<>();
-    }
 }

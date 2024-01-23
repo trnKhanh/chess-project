@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 navController.navigate(R.id.navigation_help_puzzle);
             } else if(destination == R.id.navigation_blind_puzzle){
                 navController.navigate(R.id.navigation_help_blind_puzzle);
+                Log.d(TAG, "come to blind puzzle");
             } else if(destination == R.id.navigation_evaluation_game){
                 navController.navigate(R.id.navigation_help_evaluation_game);
             }

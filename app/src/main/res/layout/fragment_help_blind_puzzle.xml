@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <androidx.recyclerview.widget.RecyclerView
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <TextView
+        android:padding="10dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/image_tutorial_container_blind_puzzle"/>
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="30dp"
+        android:gravity="center"
+        android:text="Tutorial Blind Puzzle"/>
+    <TextView
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        android:text="1. Memorize the position.\n2. After you click the Ready button, the blind puzzle starts.\n3. Every move is presented by an arrow.\n4.Click on the Start button, then click on the finish position to move a piece.\n5. You are allowed to retried infinitely, so don't worry if you are wrong.\n6. Click the Next button to change to puzzle.\n"/>
 </LinearLayout>

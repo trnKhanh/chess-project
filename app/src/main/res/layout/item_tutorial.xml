@@ -6,7 +6,6 @@
     <TextView
         android:textColor="@color/black"
         android:textSize="20dp"
-
         android:padding="10dp"
         android:gravity="center"
         android:id="@+id/textTutorial"
