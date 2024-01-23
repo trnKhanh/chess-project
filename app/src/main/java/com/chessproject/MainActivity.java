@@ -12,7 +12,12 @@ import android.util.Log;
 import com.chessproject.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.opencv.android.OpenCVLoader;
+
 public class MainActivity extends AppCompatActivity {
+    static {
+        OpenCVLoader.initDebug();
+    }
     final static String TAG = "MainActivity";
     private ActivityMainBinding binding;
     NavController navController;

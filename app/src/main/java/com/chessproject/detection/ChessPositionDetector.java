@@ -1,5 +1,7 @@
 package com.chessproject.detection;
 
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.util.Log;
 import android.util.Pair;
@@ -8,7 +10,9 @@ import com.chessproject.detection.data.BoundingBox;
 import com.chessproject.detection.data.Point;
 import com.chessproject.detection.services.DetectionService;
 import com.chessproject.detection.services.SegmentationService;
+import com.chessproject.utils.ImageUtils;
 
+import org.checkerframework.checker.units.qual.C;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,8 +46,17 @@ public class ChessPositionDetector {
     final static double TRANSFORMED_HEIGHT = 640;
     final static double TRANSFORMED_OFFSET = 64;
     ExecutorService mExecutorService = Executors.newFixedThreadPool(2);
-
-    public String detectPosition(byte[] image) {
+    private static ChessPositionDetector mInstance;
+    public static ChessPositionDetector getInstance(Context context) {
+        if (mInstance == null)
+            mInstance = new ChessPositionDetector(context);
+        return mInstance;
+    }
+    private Context mContext;
+    private ChessPositionDetector(Context context) {
+        mContext = context;
+    }
+    public String detectPosition(Bitmap image) {
         List<Callable<Object>> callables = new ArrayList<>();
         callables.add(new Callable<Object>() {
             @Override
@@ -64,7 +77,8 @@ public class ChessPositionDetector {
             pts = (ArrayList<Point>) results.get(0).get();
             boxes = (ArrayList<BoundingBox>) results.get(1).get();
             String fen = getFen(pts, boxes);
-
+            Log.d(TAG, String.valueOf(pts.size()));
+            Log.d(TAG, String.valueOf(boxes.size()));
             return fen;
         } catch (Exception e) {
             e.printStackTrace();
@@ -305,78 +319,11 @@ public class ChessPositionDetector {
         return res;
     };
 
-    ArrayList<Point> detectChessboard(byte[] image) {
-        // Initiate retrofit and service
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://outline.roboflow.com/").build();
-        SegmentationService service = retrofit.create(SegmentationService.class);
-
-        // Construct body
-        String encodedString = Base64.getEncoder().encodeToString(image);
-        RequestBody body = RequestBody.create(MediaType.get("application/x-www-form-urlencoded"), encodedString);
-
-        ArrayList<Point> pts = null;
-        // Send request
-        try {
-            Response<ResponseBody> response = service.detectChessboard(body).execute();
-            ResponseBody data = response.body();
-            JSONObject jsonData = new JSONObject(data.string());
-            JSONArray predictions = jsonData.getJSONArray("predictions");
-            JSONArray points = predictions.getJSONObject(0).getJSONArray("points");
-
-            pts = new ArrayList<>();
-            for (int i = 0; i < points.length(); ++i)
-            {
-                JSONObject point = points.getJSONObject(i);
-
-                double x = point.getDouble("x");
-                double y = point.getDouble("y");
-                pts.add(new Point(x, y));
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Chessboard segmentation failed: " + e.getMessage());
-        } catch (JSONException e) {
-            Log.e(TAG, "Chessboard segmentation failed: " + e.getMessage());
-        }
-
-        return pts;
+    ArrayList<Point> detectChessboard(Bitmap image) {
+        return ChessboardSegmentation.getInstance(mContext).detect(image);
     }
 
-    ArrayList<BoundingBox> detectChessPiece(byte[] image) {
-        // Initiate retrofit and service
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://detect.roboflow.com/").build();
-        DetectionService service = retrofit.create(DetectionService.class);
-
-        // Construct body
-        String encodedString = Base64.getEncoder().encodeToString(image);
-        RequestBody body = RequestBody.create(MediaType.get("application/x-www-form-urlencoded"), encodedString);
-
-        ArrayList<BoundingBox> boundingBoxes = null;
-        // Send request
-        try {
-            Response<ResponseBody> response = service.detectChessPiece(body).execute();
-            ResponseBody data = response.body();
-            JSONObject jsonData = new JSONObject(data.string());
-            JSONArray predictions = jsonData.getJSONArray("predictions");
-
-            boundingBoxes = new ArrayList<>();
-            for (int i = 0; i < predictions.length(); ++i)
-            {
-                JSONObject box = predictions.getJSONObject(i);
-                double x = box.getDouble("x");
-                double y = box.getDouble("y");
-                double w = box.getDouble("width");
-                double h = box.getDouble("height");
-                double conf = box.getDouble("confidence");
-                String cls = box.getString("class");
-
-                boundingBoxes.add(new BoundingBox(x, y, w, h, conf, cls));
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Chess pieces detection failed: " + e.getMessage());
-        } catch (JSONException e) {
-            Log.e(TAG, "Chess pieces detection failed: " + e.getMessage());
-        }
-
-        return boundingBoxes;
+    ArrayList<BoundingBox> detectChessPiece(Bitmap image) {
+        return ChessPieceDetector.getInstance(mContext).detect(image);
     }
 }

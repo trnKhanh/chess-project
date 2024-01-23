@@ -16,7 +16,6 @@ import com.chessproject.detection.ChessPositionDetector;
 
 public class ResultFragment extends Fragment {
     final static String TAG = "ResultFragment";
-    private ChessPositionDetector detector = new ChessPositionDetector();
     private DetectorViewModel detectorViewModel;
     private String fen;
     private BoardView chessBoard;
