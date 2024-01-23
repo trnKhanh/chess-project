@@ -27,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.chessproject.R;
 import com.chessproject.databinding.FragmentCameraBinding;
@@ -55,7 +56,8 @@ public class CameraFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         detectorViewModel = new ViewModelProvider(requireActivity()).get(DetectorViewModel.class);
-        navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
+//        navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
+        navController = NavHostFragment.findNavController(this);
     }
 
     @Override
@@ -72,7 +74,6 @@ public class CameraFragment extends Fragment {
         setupListener();
         return root;
     }
-
 
     private void setupListener() {
         binding.captureButton.setOnClickListener(view -> {

@@ -20,6 +20,10 @@
     <string name="title_games_guess_the_eval">Who Is Wining?</string>
     <string name="title_puzzle">Puzzle</string>
     <string name="title_blind_puzzle">Blind Puzzle</string>
+    <string name="help_detection">Help Detection</string>
+    <string name="help_puzzle">Help Puzzle</string>
+    <string name="help_blind_puzzle">Help Blind Puzzle</string>
+    <string name="help_evaluation_game">Help Evaluation Game</string>
     <string name="you_are_white">You Are White</string>
     <string name="you_are_black">You Are Black</string>
     <string name="choose_next_turn">Who is going next?</string>
