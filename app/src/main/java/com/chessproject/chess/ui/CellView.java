@@ -68,7 +68,7 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
+        Log.d(TAG, "DRAW");
         if ((mCellState & (LEGAL_MOVE)) != 0) {
             // Draw a dot if not a piece
             canvas.drawCircle((float) getWidth() / 2, (float) getHeight() / 2, (float) getWidth() / 10f, mDotPaint);

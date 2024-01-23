@@ -2,12 +2,17 @@ package com.chessproject.chess.ui;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
+import com.chessproject.R;
 import com.chessproject.chess.logic.Piece;
 
 public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
@@ -15,23 +20,23 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
     Context mContext;
     Piece mPiece;
     BoardController mBoardController;
+    boolean mWhitePerspective = true;
     public Piece getPiece() {
         return mPiece;
     }
     public void setPiece(Piece piece) {
         mPiece = piece;
-        setImageResource(mPiece.getImageResource());
+        setImageResource(piece.getImageResource(mWhitePerspective));
     }
     public PieceView(Context context, Piece piece, BoardController boardController) {
         super(context);
         mContext = context;
-        mPiece = piece;
+        setPiece(piece);
         mBoardController = boardController;
         // Set Z so that piece is above cell
         setZ(2);
-        // Set image resource to correct piece
-        setImageResource(mPiece.getImageResource());
     }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -109,5 +114,10 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
         };
 
         return false;
+    }
+
+    public void setPerspective(boolean white) {
+        mWhitePerspective = white;
+        setImageResource(mPiece.getImageResource(white));
     }
 }
