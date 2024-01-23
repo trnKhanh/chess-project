@@ -2,6 +2,7 @@ package com.chessproject;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.TaskStackBuilder;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -15,6 +16,7 @@ import android.view.MenuItem;
 
 import com.chessproject.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "MainActivity";
@@ -28,8 +30,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_camera, R.id.navigation_games)
                 .build();
@@ -42,7 +43,13 @@ public class MainActivity extends AppCompatActivity {
         }
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
-
+        binding.navView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                navController.navigate(item.getItemId());
+                return false;
+            }
+        });
     }
 
     @Override
@@ -71,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
                 navController.navigate(R.id.navigation_help_puzzle);
             } else if(destination == R.id.navigation_blind_puzzle){
                 navController.navigate(R.id.navigation_help_blind_puzzle);
-                Log.d(TAG, "come to blind puzzle");
             } else if(destination == R.id.navigation_evaluation_game){
                 navController.navigate(R.id.navigation_help_evaluation_game);
             }
