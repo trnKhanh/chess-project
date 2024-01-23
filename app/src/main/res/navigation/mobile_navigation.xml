@@ -45,4 +45,24 @@
         android:name="com.chessproject.ui.games.BlindPuzzleFragment"
         android:label="@string/title_blind_puzzle"
         tools:layout="@layout/fragment_blind_puzzle" />
+    <fragment
+        android:id="@+id/navigation_help_detection"
+        android:name="com.chessproject.ui.help.HelpDetectionFragment"
+        android:label="@string/help_detection"
+        tools:layout="@layout/fragment_help_detection"/>
+    <fragment
+        android:id="@+id/navigation_help_puzzle"
+        android:name="com.chessproject.ui.help.HelpPuzzleFragment"
+        android:label="@string/help_puzzle"
+        tools:layout="@layout/fragment_help_puzzle"/>
+    <fragment
+        android:id="@+id/navigation_help_blind_puzzle"
+        android:name="com.chessproject.ui.help.HelpBlindPuzzleFragment"
+        android:label="@string/help_blind_puzzle"
+        tools:layout="@layout/fragment_help_blind_puzzle"/>
+    <fragment
+        android:id="@+id/navigation_help_evaluation_game"
+        android:name="com.chessproject.ui.help.HelpEvaluationGameFragment"
+        android:label="@string/help_evaluation_game"
+        tools:layout="@layout/fragment_help_evaluation_game"/>
 </navigation>
