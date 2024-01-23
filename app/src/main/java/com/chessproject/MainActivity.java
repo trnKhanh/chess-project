@@ -1,18 +1,29 @@
 package com.chessproject;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.TaskStackBuilder;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.chessproject.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
+
+import org.opencv.android.OpenCVLoader;
 
 public class MainActivity extends AppCompatActivity {
+    static {
+        OpenCVLoader.initDebug();
+    }
     final static String TAG = "MainActivity";
     private ActivityMainBinding binding;
     NavController navController;
@@ -24,8 +35,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_camera, R.id.navigation_games)
                 .build();
@@ -38,7 +48,13 @@ public class MainActivity extends AppCompatActivity {
         }
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
-
+        binding.navView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                navController.navigate(item.getItemId());
+                return false;
+            }
+        });
     }
 
     @Override
@@ -47,6 +63,32 @@ public class MainActivity extends AppCompatActivity {
             return navController.popBackStack(R.id.navigation_camera, false);
         }
         return navController.navigateUp();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.top_nav_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.action_help){
+            int destination = navController.getCurrentDestination().getId();
+            if(destination == R.id.navigation_home){
+                // do nothing
+            } else if(destination == R.id.navigation_camera
+                    || destination == R.id.navigation_result){
+                navController.navigate(R.id.navigation_help_detection);
+            } else if(destination == R.id.navigation_puzzle){
+                navController.navigate(R.id.navigation_help_puzzle);
+            } else if(destination == R.id.navigation_blind_puzzle){
+                navController.navigate(R.id.navigation_help_blind_puzzle);
+            } else if(destination == R.id.navigation_evaluation_game){
+                navController.navigate(R.id.navigation_help_evaluation_game);
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void switchFragment(NavController navController, String fragmentTag) {

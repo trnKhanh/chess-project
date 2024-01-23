@@ -8,7 +8,18 @@
         android:id="@+id/navigation_home"
         android:name="com.chessproject.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_cameraFragment"
+            app:destination="@id/navigation_camera"
+            app:popUpTo="@id/mobile_navigation"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_gameFragment"
+            app:destination="@id/navigation_games"
+            app:popUpTo="@id/mobile_navigation"
+            app:popUpToInclusive="true" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_camera"
         android:name="com.chessproject.ui.detector.CameraFragment"
@@ -45,4 +56,24 @@
         android:name="com.chessproject.ui.games.BlindPuzzleFragment"
         android:label="@string/title_blind_puzzle"
         tools:layout="@layout/fragment_blind_puzzle" />
+    <fragment
+        android:id="@+id/navigation_help_detection"
+        android:name="com.chessproject.ui.help.HelpDetectionFragment"
+        android:label="@string/help_detection"
+        tools:layout="@layout/fragment_help_detection"/>
+    <fragment
+        android:id="@+id/navigation_help_puzzle"
+        android:name="com.chessproject.ui.help.HelpPuzzleFragment"
+        android:label="@string/help_puzzle"
+        tools:layout="@layout/fragment_help_puzzle"/>
+    <fragment
+        android:id="@+id/navigation_help_blind_puzzle"
+        android:name="com.chessproject.ui.help.HelpBlindPuzzleFragment"
+        android:label="@string/help_blind_puzzle"
+        tools:layout="@layout/fragment_help_blind_puzzle"/>
+    <fragment
+        android:id="@+id/navigation_help_evaluation_game"
+        android:name="com.chessproject.ui.help.HelpEvaluationGameFragment"
+        android:label="@string/help_evaluation_game"
+        tools:layout="@layout/fragment_help_evaluation_game"/>
 </navigation>

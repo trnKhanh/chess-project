@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ChessProject"
 include(":app")
+include(":opencv")

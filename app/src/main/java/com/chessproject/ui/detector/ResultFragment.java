@@ -16,7 +16,6 @@ import com.chessproject.detection.ChessPositionDetector;
 
 public class ResultFragment extends Fragment {
     final static String TAG = "ResultFragment";
-    private ChessPositionDetector detector = new ChessPositionDetector();
     private DetectorViewModel detectorViewModel;
     private String fen;
     private BoardView chessBoard;
@@ -25,7 +24,6 @@ public class ResultFragment extends Fragment {
         super.onCreate(savedInstanceState);
         detectorViewModel = new ViewModelProvider(requireActivity()).get(DetectorViewModel.class);
         fen = detectorViewModel.getFen().getValue();
-        Log.d(TAG, String.valueOf(fen));
     }
 
     @Override
@@ -38,6 +36,8 @@ public class ResultFragment extends Fragment {
 
     private void initializeUI(View root){
         chessBoard = root.findViewById(R.id.detectedChessBoard);
+        chessBoard.setDisabled(true);
+        chessBoard.setEvaluation(true);
         chessBoard.setFen(fen);
     }
 }
