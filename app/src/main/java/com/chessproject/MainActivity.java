@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.TaskStackBuilder;
 import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -51,8 +52,11 @@ public class MainActivity extends AppCompatActivity {
         binding.navView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                navController.navigate(item.getItemId());
-                return false;
+                NavOptions.Builder builder = new NavOptions.Builder();
+                builder.setRestoreState(true);
+                builder.setLaunchSingleTop(true);
+                navController.navigate(item.getItemId(), null, builder.build());
+                return navController.getCurrentDestination().getId() == item.getItemId();
             }
         });
     }

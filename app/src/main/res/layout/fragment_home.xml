@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/ic_launcher_background"
+    android:background="@drawable/background_2"
     tools:context=".ui.home.HomeFragment">
     <androidx.cardview.widget.CardView
         android:layout_width="800px"
@@ -43,7 +43,7 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_puzzle"/>
+                android:src="@drawable/puzzle_icon"/>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -55,7 +55,7 @@
                 android:padding="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_blind_puzzle"/>
+                android:src="@drawable/blind_puzzle_icon"/>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -67,7 +67,7 @@
                 android:padding="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_guess_evaluation"/>
+                android:src="@drawable/evaluation_icon"/>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -79,7 +79,7 @@
                 android:padding="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_next"/>
+                android:src="@drawable/more_icon"/>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 </FrameLayout>
