@@ -22,70 +22,75 @@
         android:layout_weight="1"
         android:scaleType="fitCenter"
         android:src="@drawable/chessboard"/>
-
-    <TextView
-        android:textSize="20dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="10dp"
-        android:id="@+id/nextTurnTextView"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose next turn:"/>
     <LinearLayout
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:background="@color/gray_100">
         <TextView
-            android:padding="5dp"
+            android:textSize="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="10dp"
+            android:id="@+id/nextTurnTextView"
             android:gravity="center"
-            android:id="@+id/nextTurnIsWhite"
-            android:layout_width="100dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="White"/>
-        <View
-            android:layout_width="100dp"
-            android:layout_height="match_parent"/>
-        <TextView
-            android:padding="5dp"
+            android:text="@string/choose_next_turn"/>
+        <LinearLayout
             android:gravity="center"
-            android:id="@+id/nextTurnIsBlack"
-            android:layout_width="100dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Black"/>
-    </LinearLayout>
-    <TextView
-        android:textSize="20dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="10dp"
-        android:id="@+id/nextViewTextView"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose View:"/>
-    <LinearLayout
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            android:orientation="horizontal">
+            <TextView
+                android:padding="5dp"
+                android:gravity="center"
+                android:id="@+id/nextTurnIsWhite"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="White"/>
+            <View
+                android:layout_width="100dp"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:padding="5dp"
+                android:gravity="center"
+                android:id="@+id/nextTurnIsBlack"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="Black"/>
+        </LinearLayout>
         <TextView
-            android:padding="5dp"
+            android:textSize="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="10dp"
+            android:id="@+id/nextViewTextView"
             android:gravity="center"
-            android:id="@+id/viewIsWhite"
-            android:text="White"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"/>
-        <View
-            android:layout_width="100dp"
-            android:layout_height="match_parent"/>
-        <TextView
-            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/choose_your_perspective"/>
+        <LinearLayout
             android:gravity="center"
-            android:id="@+id/viewIsBlack"
-            android:text="Black"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:padding="5dp"
+                android:gravity="center"
+                android:id="@+id/viewIsWhite"
+                android:text="White"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"/>
+            <View
+                android:layout_width="100dp"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:padding="5dp"
+                android:gravity="center"
+                android:id="@+id/viewIsBlack"
+                android:text="Black"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>`
     </LinearLayout>
     <Button
         android:padding="10dp"
