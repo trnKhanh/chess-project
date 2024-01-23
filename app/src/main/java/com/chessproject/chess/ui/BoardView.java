@@ -513,10 +513,11 @@ public class BoardView extends FrameLayout implements BoardController {
     }
     public void toggleEvaluation() {
         mIsEvaluated = !mIsEvaluated;
-        invalidate();
+        updateEvaluation();
     }
     public void setEvaluation(boolean evaluation) {
         mIsEvaluated = evaluation;
+        updateEvaluation();
     }
     // Below is the implementation of BoardController.
     @Override
