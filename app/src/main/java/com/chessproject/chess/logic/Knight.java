@@ -46,8 +46,8 @@ public class Knight extends Piece{
                         continue;
 
                     if (x >= 0 && y >= 0 && x < 8 && y < 8) {
-
-                        legalMoves.add(y * 8 + x);
+                        if (mBoard.canMove(mPosition, x + 8 * y, isWhite()))
+                            legalMoves.add(y * 8 + x);
                     }
                 }
             }
