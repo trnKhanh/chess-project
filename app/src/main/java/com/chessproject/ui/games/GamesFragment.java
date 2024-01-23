@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.chessproject.R;
 import com.chessproject.databinding.FragmentGamesBinding;
@@ -24,7 +25,7 @@ public class GamesFragment extends Fragment {
 
         binding = FragmentGamesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
+        NavController navController = NavHostFragment.findNavController(this);
         binding.evaluationGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
