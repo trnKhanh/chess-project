@@ -17,6 +17,7 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
     final static int LEGAL_MOVE = 1 << 1;
     final static int LEGAL_MOVE_PIECE = 1 << 2;
     final static int SELECTED = 1 << 3;
+    final static int IS_CHECKED = 1 << 4;
     final static String TAG = "CellView";
     Context mContext;
     int mPosition;
@@ -25,6 +26,7 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
     Paint mRingPaint = new Paint();
     Paint mHighlightedPaint = new Paint();
     Paint mSelectedPaint = new Paint();
+    Paint mCheckedPaint = new Paint();
     BoardController mBoardController;
     public CellView(Context context, int position, BoardController boardController) {
         super(context);
@@ -44,6 +46,9 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
 
         mSelectedPaint.setARGB(100, 200, 200, 200);
         mSelectedPaint.setStyle(Paint.Style.FILL);
+
+        mCheckedPaint.setARGB(100, 200, 0, 0);
+        mCheckedPaint.setStyle(Paint.Style.FILL);
 
         // Set color of cell
         int colId = mPosition % 8;
@@ -85,6 +90,10 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
             // Highlight the cell
             canvas.drawCircle((float) getWidth() / 2, (float) getHeight() / 2, (float) getWidth() * 1.2f - 4f, mSelectedPaint);
         }
+        if ((mCellState & (IS_CHECKED)) != 0) {
+            // Highlight the cell
+            canvas.drawRect(new Rect(0, 0, getWidth(), getHeight()), mCheckedPaint);
+        }
     }
     public void setCellState(int cellState) {
         mCellState = cellState;
@@ -92,6 +101,10 @@ public class CellView extends androidx.appcompat.widget.AppCompatImageView {
     }
     public void toggleHighlighted() {
         mCellState ^= HIGHLIGHTED;
+        invalidate();
+    }
+    public void toggleChecked() {
+        mCellState ^= IS_CHECKED;
         invalidate();
     }
     public void toggleSelected() {

@@ -12,6 +12,21 @@ public class Board {
         private String promotionTo = null;
         private Piece capturedPiece = null;
         private int enPassantPosition = -1;
+        private boolean[] canCastle;
+        private int castle = -1;
+        public void setCastle(int c) {
+            castle = c;
+        }
+        public int getCastle() {
+            return castle;
+        }
+        public void setCanCastle(boolean[] castle) {
+            canCastle = new boolean[4];
+            System.arraycopy(castle, 0, canCastle, 0, 4);
+        }
+        public boolean[] getCanCastle() {
+            return canCastle;
+        }
         public void setEnPassantPosition(int position){
             enPassantPosition = position;
         }
@@ -60,6 +75,18 @@ public class Board {
     }
     // TODO: find ways to record history
     final static String TAG = "Board";
+    final static int WHITE_CASTLE_KING = 0;
+    final static int WHITE_CASTLE_QUEEN = 1;
+    final static int BLACK_CASTLE_KING = 2;
+    final static int BLACK_CASTLE_QUEEN = 3;
+    boolean[] canCastle = {true, true, true, true};
+    public void setCanCastle(int code, boolean value) {
+        canCastle[code] = value;
+    }
+    public boolean getCanCastle(int code)
+    {
+        return canCastle[code];
+    }
     ArrayList<Move> mMovesHistory;
     Piece[] mPieces = new Piece[64];
     int mPromotionCount = 0;
@@ -150,6 +177,7 @@ public class Board {
         }
         Log.d(TAG, "En passant: " + String.valueOf(enPassantPosition));
         move.setEnPassantPosition(enPassantPosition);
+        move.setCanCastle(canCastle);
         int rowId = position / 8;
         int colId = position % 8;
         int newRowId = newPosition / 8;
@@ -168,6 +196,51 @@ public class Board {
                 // Then remove piece at en passant position
                 move.setCapturedPiece(mPieces[enPassantPosition]);
                 mPieces[enPassantPosition] = null;
+            }
+        }
+        if (piece.getClass() == King.class) {
+            if (piece.isWhite()) {
+                if (rowId == 7 &&
+                    rowId == newRowId &&
+                    newColId == 6 &&
+                    getCanCastle(WHITE_CASTLE_KING) &&
+                    mPieces[63] != null) {
+                    mPieces[61] = mPieces[63];
+                    mPieces[61].setPosition(61);
+                    mPieces[63] = null;
+                    move.setCastle(WHITE_CASTLE_KING);
+                }
+                if (rowId == 7 &&
+                    rowId == newRowId &&
+                    newColId == 2 &&
+                    getCanCastle(WHITE_CASTLE_QUEEN) &&
+                    mPieces[56] != null) {
+                    mPieces[59] = mPieces[56];
+                    mPieces[59].setPosition(59);
+                    mPieces[56] = null;
+                    move.setCastle(WHITE_CASTLE_QUEEN);
+                }
+            } else {
+                if (rowId == 0 &&
+                    rowId == newRowId &&
+                    newColId == 6 &&
+                    getCanCastle(BLACK_CASTLE_KING) &&
+                    mPieces[7] != null) {
+                    mPieces[5] = mPieces[7];
+                    mPieces[5].setPosition(5);
+                    mPieces[7] = null;
+                    move.setCastle(BLACK_CASTLE_KING);
+                }
+                if (rowId == 0 &&
+                    rowId == newRowId &&
+                    newColId == 2 &&
+                    getCanCastle(BLACK_CASTLE_QUEEN) &&
+                    mPieces[0] != null) {
+                    mPieces[3] = mPieces[0];
+                    mPieces[3].setPosition(3);
+                    mPieces[0] = null;
+                    move.setCastle(BLACK_CASTLE_QUEEN);
+                }
             }
         }
         if (mPieces[newPosition] != null) {
@@ -248,6 +321,29 @@ public class Board {
             return null;
         }
         enPassantPosition = move.getEnPassantPosition();
+        canCastle = move.getCanCastle();
+        switch (move.getCastle()) {
+            case WHITE_CASTLE_KING:
+                mPieces[63] = mPieces[61];
+                mPieces[63].setPosition(63);
+                mPieces[61] = null;
+                break;
+            case WHITE_CASTLE_QUEEN:
+                mPieces[56] = mPieces[59];
+                mPieces[56].setPosition(56);
+                mPieces[59] = null;
+                break;
+            case BLACK_CASTLE_KING:
+                mPieces[7] = mPieces[5];
+                mPieces[7].setPosition(7);
+                mPieces[5] = null;
+                break;
+            case BLACK_CASTLE_QUEEN:
+                mPieces[0] = mPieces[3];
+                mPieces[0].setPosition(0);
+                mPieces[3] = null;
+                break;
+        }
         // Update pieces
         // If there is promotion then reverse it
         if (move.getPromotionFrom() != null) {
@@ -343,7 +439,7 @@ public class Board {
         }
     }
 
-    private boolean isCheck(boolean isWhite) {
+    public boolean isCheck(boolean isWhite) {
         // find King Position
         int kingPosition = 0;
         for (int i = 0; i < 64; i++) {

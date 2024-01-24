@@ -50,6 +50,54 @@ public class King extends Piece{
                 if (mBoard.canMove(mPosition, x + 8 * y, isWhite()))
                     legalMoves.add(x + 8 * y);
             }
+        if (!mBoard.isCheck(isWhite())) {
+            if (isWhite()) {
+                if (mBoard.getCanCastle(Board.WHITE_CASTLE_KING)) {
+                    if (mBoard.getPiece(61) == null &&
+                            mBoard.getPiece(62) == null &&
+                            legalMoves.contains(61) &&
+                            mBoard.canMove(mPosition, 62, isWhite())) {
+                        legalMoves.add(62);
+                    }
+                }
+                if (mBoard.getCanCastle(Board.WHITE_CASTLE_QUEEN)) {
+                    if (mBoard.getPiece(59) == null &&
+                            mBoard.getPiece(58) == null &&
+                            legalMoves.contains(59) && mBoard.canMove(mPosition, 58, isWhite())) {
+                        legalMoves.add(58);
+                    }
+                }
+            } else {
+                if (mBoard.getCanCastle(Board.BLACK_CASTLE_KING)) {
+                    if (mBoard.getPiece(5) == null &&
+                            mBoard.getPiece(6) == null &&
+                            legalMoves.contains(5) && mBoard.canMove(mPosition, 6, isWhite())) {
+                        legalMoves.add(6);
+                    }
+                }
+                if (mBoard.getCanCastle(Board.BLACK_CASTLE_QUEEN)) {
+                    if (mBoard.getPiece(2) == null &&
+                            mBoard.getPiece(3) == null &&
+                            legalMoves.contains(3) && mBoard.canMove(mPosition, 2, isWhite())) {
+                        legalMoves.add(2);
+                    }
+                }
+            }
+        }
         return legalMoves;
+    }
+
+    @Override
+    public boolean moveTo(int newPosition) {
+        if (!super.moveTo(newPosition))
+            return false;
+        if (isWhite()) {
+            mBoard.setCanCastle(Board.WHITE_CASTLE_KING, false);
+            mBoard.setCanCastle(Board.WHITE_CASTLE_QUEEN, false);
+        } else {
+            mBoard.setCanCastle(Board.BLACK_CASTLE_QUEEN, false);
+            mBoard.setCanCastle(Board.BLACK_CASTLE_KING, false);
+        }
+        return true;
     }
 }

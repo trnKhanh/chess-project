@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.chessproject.MyApplication;
 import com.chessproject.R;
 import com.chessproject.chess.logic.Board;
+import com.chessproject.chess.logic.King;
 import com.chessproject.chess.logic.Knight;
 import com.chessproject.chess.logic.Piece;
 import com.chessproject.evaluation.ChessPositionEvaluator;
@@ -302,6 +303,20 @@ public class BoardView extends FrameLayout implements BoardController {
         } else {
             for (PieceView pieceView: mExtraPieceViews) {
                 pieceView.setVisibility(GONE);
+            }
+        }
+        if (mBoard.isCheck(true)) {
+            for (PieceView pieceView: mPieceViewMap.values()) {
+                if (pieceView.getPiece().getClass() == King.class && pieceView.getPiece().isWhite()) {
+                    mCellViews[pieceView.getPiece().getPosition()].toggleChecked();
+                }
+            }
+        }
+        if (mBoard.isCheck(false)) {
+            for (PieceView pieceView: mPieceViewMap.values()) {
+                if (pieceView.getPiece().getClass() == King.class && !pieceView.getPiece().isWhite()) {
+                    mCellViews[pieceView.getPiece().getPosition()].toggleChecked();
+                }
             }
         }
         // If there is a promotion

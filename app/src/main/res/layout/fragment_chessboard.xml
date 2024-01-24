@@ -14,5 +14,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/rollback"
-        android:text="Rollback"/>
+        android:text="Rollback"
+        android:layout_gravity="center"/>
 </LinearLayout>

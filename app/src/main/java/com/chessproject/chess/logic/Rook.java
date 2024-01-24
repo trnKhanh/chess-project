@@ -61,4 +61,27 @@ public class Rook extends Piece{
         }
         return legalMoves;
     }
+
+    @Override
+    public boolean moveTo(int newPosition) {
+        int oldPosition = mPosition;
+        if (!super.moveTo(newPosition))
+            return false;
+        if (isWhite()) {
+            if (oldPosition == 56) {
+                mBoard.setCanCastle(Board.WHITE_CASTLE_QUEEN, false);
+            }
+            if (oldPosition == 63) {
+                mBoard.setCanCastle(Board.WHITE_CASTLE_KING, false);
+            }
+        } else {
+            if (oldPosition == 0) {
+                mBoard.setCanCastle(Board.BLACK_CASTLE_QUEEN, false);
+            }
+            if (oldPosition == 7) {
+                mBoard.setCanCastle(Board.BLACK_CASTLE_KING, false);
+            }
+        }
+        return true;
+    }
 }

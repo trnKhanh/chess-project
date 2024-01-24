@@ -28,4 +28,5 @@
     <string name="you_are_black">You Are Black</string>
     <string name="choose_next_turn">Who is going next?</string>
     <string name="choose_your_perspective">Choose your perspective?</string>
+    <string name="chessboard">Chessboard</string>
 </resources>
