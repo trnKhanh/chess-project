@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 
 import com.chessproject.R;
 import com.chessproject.adapter.TutorialPagerAdapter;
@@ -31,6 +32,8 @@ public class HelpDetectionFragment extends HelpFragment {
         initData();
         adapter = new TutorialPagerAdapter(requireContext(), tutorialSlide);
         tutorialContainer.setAdapter(adapter);
+        LinearSnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(tutorialContainer);
         tutorialContainer.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
     }
 
