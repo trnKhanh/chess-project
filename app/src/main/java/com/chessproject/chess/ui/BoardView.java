@@ -113,6 +113,7 @@ public class BoardView extends FrameLayout implements BoardController {
         mBlackPromotionSelections.setVisibility(GONE);
         this.addView(mBlackPromotionSelections);
         requestLayout();
+        updateEvaluation();
     }
     public BoardView(@NonNull Context context, @Nullable AttributeSet attrs) {
         // Need to implement this so that it can be declared in XML.
@@ -383,6 +384,8 @@ public class BoardView extends FrameLayout implements BoardController {
                     @Override
                     public void run() {
                         // Only update if fen is the newest
+                        Log.d(TAG, "FEN = " + String.valueOf(fen));
+                        Log.d(TAG, "FEN = " + String.valueOf(mBoard.getFen()));
                         if (fen.compareTo(mBoard.getFen()) == 0) {
                             mBestMove = bestMove;
                             invalidate();

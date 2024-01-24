@@ -100,6 +100,7 @@ public class CameraFragment extends Fragment {
                     int cy = bitmap.getHeight() / 2;
                     int a = Math.min(bitmap.getWidth(), bitmap.getHeight());
                     Bitmap cropped = Bitmap.createBitmap(bitmap, cx - a / 2, cy - a/ 2, a, a);
+
                     detectorViewModel.setCapturedImage(cropped);
                     imageProxy.close();
                     replaceWithPrepareImageFragment();

@@ -268,7 +268,6 @@ public class Board {
         return move;
     }
     public String getFen() {
-
         String fen = "";
         int blankCell = 0;
         for (int indexSquare = 0; indexSquare < 64; indexSquare++){
@@ -295,6 +294,7 @@ public class Board {
         if (blankCell > 0) fen += Integer.toString(blankCell);
         if (isWhiteTurn()) fen += " w";
         else fen += " b";
+        fen += " - - 0 0";
         return fen;
     }
     public boolean canMove(int oldPosition, int newPosition, boolean isWhite) {
