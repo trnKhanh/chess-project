@@ -46,7 +46,7 @@ public class ChessPieceDetector {
 
     private final static int NUM_ELEMENT = 8400;
     private final static float CONF_THRESHOLD = 0.5f;
-    private final static float IOU_THRESHOLD = 0.75f;
+    private final static float IOU_THRESHOLD = 75f;
     private String[] className = {"0", "1", "10", "11", "12", "2", "3", "4", "5", "6", "7", "8", "9"};
     Interpreter interpreter = null;
     ImageProcessor imageProcessor = (new ImageProcessor.Builder())
@@ -55,7 +55,7 @@ public class ChessPieceDetector {
             .build();
     ChessPieceDetector(Context context) {
         try {
-            MappedByteBuffer model = FileUtil.loadMappedFile(context, "chess_piece_detection_float16_metadata.tflite");
+            MappedByteBuffer model = FileUtil.loadMappedFile(context, "chess_piece_detection_float32.tflite");
 
             Interpreter.Options options = new Interpreter.Options();
             options.setNumThreads(4);
@@ -91,6 +91,7 @@ public class ChessPieceDetector {
             box.y *= bitmap.getHeight();
             box.width *= bitmap.getWidth();
             box.height *= bitmap.getHeight();
+            Log.d(TAG, String.valueOf(box.confidence) + " " + String.valueOf(box.cls));
         }
         return processedBoxes;
     }
@@ -135,7 +136,7 @@ public class ChessPieceDetector {
                 break;
             maskId.add(i);
             for (int j = i + 1; j < boxes.size(); ++j) {
-                if (boxes.get(i).cls != boxes.get(j).cls)
+                if (!boxes.get(i).cls.equals(boxes.get(j).cls))
                     continue;
                 float iou = getIOU(boxes.get(i), boxes.get(j));
                 if (iou > IOU_THRESHOLD) {

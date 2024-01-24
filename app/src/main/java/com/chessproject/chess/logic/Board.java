@@ -88,8 +88,6 @@ public class Board {
         Log.d(TAG, "Is white turn: " + String.valueOf(mIsWhiteTurn));
         // TODO: En Passant and castle
     }
-
-
     public ArrayList<Piece> getPieces() {
         ArrayList<Piece> pieces = new ArrayList<>();
         for (int i = 0; i < 64; ++i) {
@@ -270,7 +268,7 @@ public class Board {
         return move;
     }
     public String getFen() {
-        return "r2q1rk1/ppp2ppp/3bbn2/3p4/8/1B1P4/PPPPPPPP/RNB1QRK1 w - - 5 11";
+        return "r2q1rk1/ppp2ppp/3bbn2/3p4/8/1B1P4/PPPPPPPP/RNB1QRK1 w - - 0 0";
     }
     public boolean canMove(int oldPosition, int newPosition, boolean isWhite) {
         boolean isValidMove = movePiece(oldPosition, newPosition);

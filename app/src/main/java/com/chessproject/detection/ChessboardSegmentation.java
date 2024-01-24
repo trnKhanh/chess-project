@@ -57,7 +57,7 @@ public class ChessboardSegmentation {
             .build();
     ChessboardSegmentation(Context context) {
         try {
-            MappedByteBuffer model = FileUtil.loadMappedFile(context, "chessboard_seg_float16.tflite");
+            MappedByteBuffer model = FileUtil.loadMappedFile(context, "chessboard_seg_float32.tflite");
 
             Interpreter.Options options = new Interpreter.Options();
             options.setNumThreads(4);
