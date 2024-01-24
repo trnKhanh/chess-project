@@ -88,8 +88,6 @@ public class Board {
         Log.d(TAG, "LAN2" + getFen());
         // TODO: En Passant and castle
     }
-
-
     public ArrayList<Piece> getPieces() {
         ArrayList<Piece> pieces = new ArrayList<>();
         for (int i = 0; i < 64; ++i) {
@@ -270,6 +268,7 @@ public class Board {
         return move;
     }
     public String getFen() {
+
         String fen = "";
         int blankCell = 0;
         for (int indexSquare = 0; indexSquare < 64; indexSquare++){

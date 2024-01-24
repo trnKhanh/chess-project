@@ -5,6 +5,7 @@ import static com.chessproject.utils.ImageUtils.imageToBitmap;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -94,7 +96,11 @@ public class CameraFragment extends Fragment {
                 public void onCaptureSuccess(@NonNull ImageProxy imageProxy) {
                     super.onCaptureSuccess(imageProxy);
                     Bitmap bitmap = imageToBitmap(imageProxy);
-                    detectorViewModel.setCapturedImage(bitmap);
+                    int cx = bitmap.getWidth() / 2;
+                    int cy = bitmap.getHeight() / 2;
+                    int a = Math.min(bitmap.getWidth(), bitmap.getHeight());
+                    Bitmap cropped = Bitmap.createBitmap(bitmap, cx - a / 2, cy - a/ 2, a, a);
+                    detectorViewModel.setCapturedImage(cropped);
                     imageProxy.close();
                     replaceWithPrepareImageFragment();
                 }
