@@ -488,7 +488,7 @@ public class BoardView extends FrameLayout implements BoardController {
             if (move.getCapturedPiece() != null) {
                 PieceView pieceView = new PieceView(mContext, move.getCapturedPiece(), this);
                 this.addView(pieceView);
-                mPieceViewMap.put(move.getNewPosition(), pieceView);
+                mPieceViewMap.put(move.getCapturedPiece().getPosition(), pieceView);
             }
             // Update evaluation
             updateEvaluation();
@@ -571,9 +571,11 @@ public class BoardView extends FrameLayout implements BoardController {
                     if (isPromotion) {
                         mPromotedPieceView = selectedPieceView;
                     }
+                    Board.Move move = mBoard.getLastMove();
                     // If clicked cell contains a piece, then remove it, i.e capturing piece.
-                    if (mPieceViewMap.containsKey(position)) {
-                        PieceView pieceView = mPieceViewMap.get(position);
+                    if (move.getCapturedPiece() != null) {
+                        Log.d(TAG, "Captured piece");
+                        PieceView pieceView = mPieceViewMap.get(move.getCapturedPiece().getPosition());
                         mPieceViewMap.remove(position);
                         this.removeView(pieceView);
                     }

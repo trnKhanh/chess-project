@@ -1,8 +1,11 @@
 package com.chessproject.chess.logic;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 public abstract class Piece implements Cloneable{
+    final static String TAG = "Piece";
     boolean mWhite;
     int mPosition;
     Board mBoard;
@@ -54,6 +57,7 @@ public abstract class Piece implements Cloneable{
         return mPosition;
     }
     public boolean moveTo(int newPosition) {
+        Log.d(TAG, "Move from " + String.valueOf(mPosition) + " to " + String.valueOf(newPosition));
         ArrayList<Integer> legalMoves = getLegalMoves();
         // Check if the move is legal before moving.
         if (legalMoves.contains(newPosition)) {
@@ -68,6 +72,7 @@ public abstract class Piece implements Cloneable{
                 }
                 // If the move is successful then update position.
                 mPosition = newPosition;
+                mBoard.setEnPassantPosition(-1);
                 return true;
             }
         }

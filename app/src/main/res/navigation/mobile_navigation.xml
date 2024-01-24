@@ -76,4 +76,9 @@
         android:name="com.chessproject.ui.help.HelpEvaluationGameFragment"
         android:label="@string/help_evaluation_game"
         tools:layout="@layout/fragment_help_evaluation_game"/>
+    <fragment
+        android:id="@+id/navigation_chessboard"
+        android:name="com.chessproject.ui.games.ChessboardFragment"
+        android:label="Chessboard"
+        tools:layout="@layout/fragment_chessboard"/>
 </navigation>

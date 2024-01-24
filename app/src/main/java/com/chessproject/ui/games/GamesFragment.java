@@ -44,6 +44,12 @@ public class GamesFragment extends Fragment {
                 navController.navigate(R.id.navigation_blind_puzzle);
             }
         });
+        binding.chessboard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navController.navigate(R.id.navigation_chessboard);
+            }
+        });
 
         return root;
     }

@@ -56,4 +56,20 @@
         android:padding="10dp"
         android:textAllCaps="false"
         />
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/blind_puzzle_label"
+        android:textSize="12pt"
+        android:layout_gravity="start"
+        android:textAlignment="textStart"
+        android:id="@+id/chessboard"
+        app:backgroundTint="@color/gray_300"
+        android:textColor="@color/black"
+        app:iconTint="@color/black"
+        app:icon="@drawable/ic_blind_puzzle"
+        app:iconSize="12pt"
+        android:padding="10dp"
+        android:textAllCaps="false"
+        />
 </LinearLayout>

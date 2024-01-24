@@ -1,5 +1,7 @@
 package com.chessproject.chess.logic;
 
+import android.util.Log;
+
 import com.chessproject.R;
 
 import java.util.ArrayList;
@@ -46,8 +48,6 @@ public class Pawn extends Piece{
             if (isWhite() == false){
                 if (i == 2 && rowId != 1 ) break;
             }
-
-
             int x = colId;
             int y = rowId + i * direction;
             Piece piece = mBoard.getPiece(x + y * 8);
@@ -71,7 +71,34 @@ public class Pawn extends Piece{
                 if (mBoard.canMove(mPosition, x + 1 + 8 * y, isWhite()))
                     legalMoves.add(x + 1 + 8 * y);
         }
+        int enPassantPosition = mBoard.getEnPassantPosition();
+        Log.d(TAG, "En passant" + String.valueOf(enPassantPosition));
+        if (enPassantPosition != -1) {
+            int enPassantRowId = enPassantPosition / 8;
+            int enPassantColId = enPassantPosition % 8;
+            if (enPassantRowId == rowId && Math.abs(enPassantColId - colId) == 1) {
+                if (isWhite())
+                    legalMoves.add(enPassantPosition - 8);
+                else {
+                    legalMoves.add(enPassantPosition + 8);
+                }
+            }
+        }
+        Log.d(TAG, "Size " + String.valueOf(legalMoves.size()));
 
         return legalMoves;
+    }
+
+    @Override
+    public boolean moveTo(int newPosition) {
+        int oldRowId = mPosition / 8;
+        boolean success = super.moveTo(newPosition);
+        if (!success)
+            return false;
+        int newRowId = newPosition / 8;
+        if (Math.abs(oldRowId - newRowId) == 2) {
+            mBoard.setEnPassantPosition(newPosition);
+        }
+        return true;
     }
 }

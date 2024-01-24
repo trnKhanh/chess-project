@@ -5,14 +5,19 @@ import android.util.Log;
 import java.util.ArrayList;
 
 public class Board {
-
-
     public static class Move {
         private final int oldPosition;
         private final int newPosition;
-        private String promotionFrom;
-        private String promotionTo;
-        private Piece capturedPiece;
+        private String promotionFrom = null;
+        private String promotionTo = null;
+        private Piece capturedPiece = null;
+        private int enPassantPosition = -1;
+        public void setEnPassantPosition(int position){
+            enPassantPosition = position;
+        }
+        public int getEnPassantPosition() {
+            return enPassantPosition;
+        }
         public int getOldPosition() {
             return oldPosition;
         }
@@ -59,6 +64,13 @@ public class Board {
     Piece[] mPieces = new Piece[64];
     int mPromotionCount = 0;
     private boolean mIsWhiteTurn = true;
+    int enPassantPosition = -1;
+    public void setEnPassantPosition(int position) {
+        enPassantPosition = position;
+    }
+    public int getEnPassantPosition() {
+        return enPassantPosition;
+    }
     public Board(String fen) {
         if (fen == null) {
             fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -136,10 +148,28 @@ public class Board {
         if (mPieces[position] == null) {
             return false;
         }
+        Log.d(TAG, "En passant: " + String.valueOf(enPassantPosition));
+        move.setEnPassantPosition(enPassantPosition);
+        int rowId = position / 8;
+        int colId = position % 8;
+        int newRowId = newPosition / 8;
+        int newColId = newPosition % 8;
         Piece piece = mPieces[position];
         // Remove piece at position.
         mPieces[position] = null;
         // If the new position contains the piece, then remove it.
+
+        if (piece.getClass() == Pawn.class && enPassantPosition != -1) {
+            int enPassantRowId = enPassantPosition / 8;
+            int enPassantColId = enPassantPosition % 8;
+            if (newColId == enPassantColId && Math.abs(enPassantRowId - newRowId) == 1 && colId != newColId) {
+                Log.d(TAG, "En passant " + String.valueOf(newColId) + " " + String.valueOf(newRowId));
+                // If the condition is satisfied then this is an en passant move.
+                // Then remove piece at en passant position
+                move.setCapturedPiece(mPieces[enPassantPosition]);
+                mPieces[enPassantPosition] = null;
+            }
+        }
         if (mPieces[newPosition] != null) {
             move.setCapturedPiece(mPieces[newPosition]);
             mPieces[newPosition] = null;
@@ -217,6 +247,7 @@ public class Board {
         if (mPieces[move.getNewPosition()] == null) {
             return null;
         }
+        enPassantPosition = move.getEnPassantPosition();
         // Update pieces
         // If there is promotion then reverse it
         if (move.getPromotionFrom() != null) {
@@ -259,7 +290,9 @@ public class Board {
         // Reverse the move
         mPieces[move.getOldPosition()] = mPieces[move.getNewPosition()];
         // If the move captured a piece, then bring it back
-        mPieces[move.getNewPosition()] = move.getCapturedPiece();
+        mPieces[move.getNewPosition()] = null;
+        if (move.getCapturedPiece() != null)
+            mPieces[move.getCapturedPiece().getPosition()] = move.getCapturedPiece();
         // Update position of piece
         mPieces[move.getOldPosition()].setPosition(move.getOldPosition());
         Log.d(TAG, String.valueOf(move.getPromotionFrom()));
