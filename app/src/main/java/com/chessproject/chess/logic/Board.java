@@ -84,8 +84,8 @@ public class Board {
         // white or black turn
         String turnSide = fields[1];
         mIsWhiteTurn = turnSide.equals("w");
-        Log.d(TAG, String.valueOf(fen));
-        Log.d(TAG, "Is white turn: " + String.valueOf(mIsWhiteTurn));
+        Log.d(TAG, "LAN1" + fen);
+        Log.d(TAG, "LAN2" + getFen());
         // TODO: En Passant and castle
     }
 
@@ -270,7 +270,33 @@ public class Board {
         return move;
     }
     public String getFen() {
-        return "r2q1rk1/ppp2ppp/3bbn2/3p4/8/1B1P4/PPPPPPPP/RNB1QRK1 w - - 5 11";
+        String fen = "";
+        int blankCell = 0;
+        for (int indexSquare = 0; indexSquare < 64; indexSquare++){
+            if (indexSquare != 0 && indexSquare % 8 == 0){
+                if (blankCell > 0) fen += Integer.toString(blankCell);
+                blankCell = 0;
+                fen += '/';
+            }
+            Piece piece = getPiece(indexSquare);
+            if (piece == null) {
+                blankCell++;
+            }
+            else {
+                if (blankCell > 0) fen += Integer.toString(blankCell);
+                blankCell = 0;
+                if (piece instanceof Pawn) fen += (piece.isWhite() ? "P" : "p");
+                if (piece instanceof Queen) fen += (piece.isWhite() ? "Q" : "q");
+                if (piece instanceof Rook) fen += (piece.isWhite() ? "R" : "r");
+                if (piece instanceof King) fen += (piece.isWhite() ? "K" : "k");
+                if (piece instanceof Bishop) fen += (piece.isWhite() ? "B" : "b");
+                if (piece instanceof Knight) fen += (piece.isWhite() ? "N" : "n");
+            }
+        }
+        if (blankCell > 0) fen += Integer.toString(blankCell);
+        if (isWhiteTurn()) fen += " w";
+        else fen += " b";
+        return fen;
     }
     public boolean canMove(int oldPosition, int newPosition, boolean isWhite) {
         boolean isValidMove = movePiece(oldPosition, newPosition);
