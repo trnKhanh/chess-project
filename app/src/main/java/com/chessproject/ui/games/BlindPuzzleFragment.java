@@ -108,6 +108,7 @@ public class BlindPuzzleFragment extends Fragment {
         binding.chessboard.setHidden(false);
         binding.chessboard.setDisabled(true);
         binding.readyButton.setVisibility(View.VISIBLE);
+        binding.retryButton.setVisibility(View.GONE);
 
         mCurPuzzle = PuzzleDataset.getInstance(getContext()).nextPuzzle();
         if (mCurPuzzle.isWhiteToMove()) {
