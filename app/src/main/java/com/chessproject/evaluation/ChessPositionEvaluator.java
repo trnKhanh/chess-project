@@ -45,7 +45,7 @@ public class ChessPositionEvaluator {
                     return eval;
                 }
             }
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Log.e(TAG, "Chess position evaluation failed: " + e.getMessage());
         }
         return 0;
@@ -64,7 +64,7 @@ public class ChessPositionEvaluator {
                 int toPosition = ChessUtils.getPosition(bestMove.substring(2, 4));
                 return new Pair<>(fromPosition, toPosition);
             }
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             Log.e(TAG, "Chess position get best move failed: " + e.getMessage());
         }
         return null;
