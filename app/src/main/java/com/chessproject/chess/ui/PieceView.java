@@ -73,7 +73,9 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
     }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        if (mPiece.getLegalMoves().size() == 0) {
+            return false;
+        }
         // Calculate the new position
         float centerX = getX() + event.getX();
         float centerY = getY() + event.getY();
@@ -89,7 +91,7 @@ public class PieceView extends androidx.appcompat.widget.AppCompatImageView {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
                 // Try set selected piece to this if there is no current selected piece.
-                return mBoardController.setSelectedPiece(mPiece.getPosition(), true);
+                return mBoardController.setSelectedPiece(mPiece.getPosition(), false);
             case MotionEvent.ACTION_MOVE:
                 // Scale up the piece
                 setScaleX(1.5f);

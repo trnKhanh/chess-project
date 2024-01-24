@@ -505,6 +505,15 @@ public class BoardView extends FrameLayout implements BoardController {
                 this.addView(pieceView);
                 mPieceViewMap.put(move.getCapturedPiece().getPosition(), pieceView);
             }
+            for (int pos = 0; pos < 64; ++pos) {
+                if (!mPieceViewMap.containsKey(pos))
+                    continue;
+                PieceView pieceView = mPieceViewMap.get(pos);
+                if (pos != pieceView.getPiece().getPosition()) {
+                    mPieceViewMap.remove(pos);
+                    mPieceViewMap.put(pieceView.getPiece().getPosition(), pieceView);
+                }
+            }
             // Update evaluation
             updateEvaluation();
             setLastMoveEvaluation(0,0);
@@ -597,6 +606,17 @@ public class BoardView extends FrameLayout implements BoardController {
                     // Update piece's view position
                     mPieceViewMap.remove(oldPosition);
                     mPieceViewMap.put(position, selectedPieceView);
+                    if (move.getCastle() != -1) {
+                        for (int pos = 0; pos < 64; ++pos) {
+                            if (!mPieceViewMap.containsKey(pos))
+                                continue;
+                            PieceView pieceView = mPieceViewMap.get(pos);
+                            if (pos != pieceView.getPiece().getPosition()) {
+                                mPieceViewMap.remove(pos);
+                                mPieceViewMap.put(pieceView.getPiece().getPosition(), pieceView);
+                            }
+                        }
+                    }
 
                     // TODO: add functionality to evaluation view
                     if (!isPromotion) {
